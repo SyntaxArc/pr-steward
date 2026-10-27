@@ -1,0 +1,28 @@
+# Deletes the source branch of the merge request that landed on the default branch.
+# Simpler alternative with no job: merge with `glab mr merge --remove-source-branch`, or enable "Delete source branch
+# when merge request is accepted" in the project settings.
+# Needs a masked CI variable GITLAB_API_TOKEN with the api scope.
+# Skips forks, the default branch, main, master and release/*.
+delete-merged-branch:
+  stage: .post
+  image: alpine:3
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - |
+      mr=$(curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/commits/$CI_COMMIT_SHA/merge_requests" | jq '[.[] | select(.state == "merged")] | .[0]')
+      [ "$mr" != "null" ] || exit 0
+      # Skip merge requests from forks.
+      [ "$(echo "$mr" | jq -r '.source_project_id == .target_project_id')" = "true" ] || exit 0
+      ref=$(echo "$mr" | jq -r .source_branch)
+      case "$ref" in
+        "$CI_DEFAULT_BRANCH"|main|master|release/*) exit 0 ;;
+      esac
+      encoded=$(printf '%s' "$ref" | jq -sRr @uri)
+      curl -sf --request DELETE --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches/$encoded" || echo "Branch $ref is already gone or protected."
