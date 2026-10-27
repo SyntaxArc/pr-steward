@@ -2,7 +2,10 @@
 #   "Part of #N (item K)"  ticks item K (the Kth "- [ ]" line, counted from 1) in the issue body.
 #   "Closes #N"            ticks every remaining item ("Fixes" and "Resolves" work the same).
 # A bare "Part of #N" without "(item K)" ticks nothing.
-# Needs no secrets. The job token needs the permissions set below: issues: write, pull-requests: read.
+# After ticking, if the pull request said "Closes #N" and the issue still has unticked "- [ ]" items, the issue is
+# reopened (when GitHub closed it) and a comment lists the remaining items.
+# Needs no secrets. The job token needs the permissions set below: issues: write (edit, reopen, comment),
+# pull-requests: read.
 # Edits run one at a time per issue (concurrency group), so two merges do not overwrite each other. GitHub keeps only
 # one waiting run per group, so merge many pull requests for the same issue at the same moment with care.
 name: Tick issue checklist after a merge
@@ -66,8 +69,10 @@ jobs:
       run: |
         case "$ISSUE" in ''|*[!0-9]*) exit 1 ;; esac
         case "$ITEMS" in ''|*[!0-9\ allAL]*) exit 1 ;; esac
-        gh issue view "$ISSUE" --repo "$REPO" --json body --jq '.body // ""' > old.md \
+        gh issue view "$ISSUE" --repo "$REPO" --json body,state > issue.json \
           || { echo "::warning::issue #$ISSUE not found"; exit 0; }
+        jq -r '.body // ""' issue.json > old.md
+        state=$(jq -r '.state' issue.json)
         awk -v items="$ITEMS" '
           BEGIN { n = split(items, a, " "); for (i = 1; i <= n; i++) want[a[i]] = 1 }
           /^[ \t]*(```|~~~)/ { fence = !fence }
@@ -78,5 +83,24 @@ jobs:
           }
           { print }
         ' old.md > new.md
-        if cmp -s old.md new.md; then echo "nothing to tick on #$ISSUE"; exit 0; fi
-        gh issue edit "$ISSUE" --repo "$REPO" --body-file new.md
+        if cmp -s old.md new.md; then
+          echo "nothing to tick on #$ISSUE"
+        else
+          gh issue edit "$ISSUE" --repo "$REPO" --body-file new.md
+        fi
+        # Only "Closes #N" can close an issue: list the unticked items left over and reopen it.
+        [ "$ITEMS" = "all" ] || exit 0
+        awk '
+          /^[ \t]*(```|~~~)/ { fence = !fence }
+          !fence && /^[ \t]*[-*] \[ \]/ { print }
+        ' new.md > remaining.md
+        [ -s remaining.md ] || exit 0
+        {
+          echo "This issue was closed by a merged pull request, but these items are still unticked:"
+          echo
+          cat remaining.md
+        } > comment.md
+        if [ "$state" = "CLOSED" ]; then
+          gh issue reopen "$ISSUE" --repo "$REPO"
+        fi
+        gh issue comment "$ISSUE" --repo "$REPO" --body-file comment.md

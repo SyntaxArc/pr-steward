@@ -2,7 +2,9 @@
 #   "Part of #N (item K)"  ticks item K (the Kth "- [ ]" line, counted from 1) in the issue description.
 #   "Closes #N"            ticks every remaining item ("Fixes" and "Resolves" work the same).
 # A bare "Part of #N" without "(item K)" ticks nothing.
-# Needs a masked CI variable GITLAB_API_TOKEN with the api scope. The MR description is untrusted text: it is only
+# After ticking, if the MR said "Closes #N" and the issue still has unticked "- [ ]" items, the issue is reopened and a
+# note lists the remaining items.
+# Needs a masked CI variable GITLAB_API_TOKEN with the api scope (it edits, reopens and comments on issues). The MR description is untrusted text: it is only
 # parsed with grep and jq and never run as shell.
 # resource_group runs the jobs one at a time, so two merges do not overwrite each other's edits.
 tick-issue-checklist:
@@ -31,8 +33,10 @@ tick-issue-checklist:
         ' > refs.txt
       while read -r issue items; do
         items=$(echo "$items" | tr ',' ' ')
-        curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" "$api/issues/$issue" | jq -r '.description // ""' > old.md \
+        curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" "$api/issues/$issue" > issue.json \
           || { echo "issue #$issue not found"; continue; }
+        jq -r '.description // ""' issue.json > old.md
+        state=$(jq -r '.state' issue.json)
         awk -v items="$items" '
           BEGIN { n = split(items, a, " "); for (i = 1; i <= n; i++) want[a[i]] = 1 }
           /^[ \t]*(```|~~~)/ { fence = !fence }
@@ -43,7 +47,28 @@ tick-issue-checklist:
           }
           { print }
         ' old.md > new.md
-        if cmp -s old.md new.md; then echo "nothing to tick on #$issue"; continue; fi
-        curl -sf --request PUT --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-          --data-urlencode "description@new.md" "$api/issues/$issue" > /dev/null
+        if cmp -s old.md new.md; then
+          echo "nothing to tick on #$issue"
+        else
+          curl -sf --request PUT --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+            --data-urlencode "description@new.md" "$api/issues/$issue" > /dev/null
+        fi
+        # Only "Closes #N" can close an issue: list the unticked items left over and reopen it.
+        [ "$items" = "all" ] || continue
+        awk '
+          /^[ \t]*(```|~~~)/ { fence = !fence }
+          !fence && /^[ \t]*[-*] \[ \]/ { print }
+        ' new.md > remaining.md
+        [ -s remaining.md ] || continue
+        {
+          echo "This issue was closed by a merged MR, but these items are still unticked:"
+          echo
+          cat remaining.md
+        } > comment.md
+        if [ "$state" = "closed" ]; then
+          curl -sf --request PUT --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+            --data "state_event=reopen" "$api/issues/$issue" > /dev/null
+        fi
+        curl -sf --request POST --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+          --data-urlencode "body@comment.md" "$api/issues/$issue/notes" > /dev/null
       done < refs.txt
