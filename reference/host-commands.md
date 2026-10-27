@@ -37,6 +37,9 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | failed job log | `gh run view ID --log-failed \| tail -n 30` | `glab ci trace JOB_ID \| tail -n 30` (job ids: `glab ci get -p ID -F json`, or `glab api "projects/:id/pipelines/ID/jobs?scope[]=failed"`) |
 | view PR/MR merge state and merge commit | `gh pr view N --json state,mergeCommit,title,labels,body` (`state` = `MERGED`; `mergeCommit.oid` is the sha) | `glab mr view N -F json \| jq '{state,merge_commit_sha,squash_commit_sha,title,labels}'` (`state` = `merged`) |
 | view PR/MR commits | `gh pr view N --json commits -q '.commits[].oid'` | `glab api "projects/:id/merge_requests/N/commits" \| jq -r '.[].id'` (newest first: reverse before picking) |
+| delete remote branch | `git push origin --delete BRANCH` | `git push origin --delete BRANCH` |
+| list remote branches merged into the working branch | `git branch -r --merged origin/BASE` | `git branch -r --merged origin/BASE` |
+| auto-delete head branches after merge | `gh api -X PATCH repos/OWNER/REPO -f delete_branch_on_merge=true` | `glab mr create --remove-source-branch`; project: `glab api -X PUT projects/:id -f remove_source_branch_after_merge=true` |
 
 ## Differences
 
