@@ -16,3 +16,19 @@ jobs:
       - run: python3 scripts/check_catalog.py
       - run: python3 -m unittest discover -s tests -v
       - run: bash -n scripts/create-labels.sh
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # lychee.toml auto-loaded. Inputs only below.
+          args: >-
+            --verbose
+            --no-progress
+            README.md
+            CHANGELOG.md
+            skills
+            reference
