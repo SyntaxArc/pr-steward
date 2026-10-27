@@ -17,11 +17,11 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 | `split-issue` | Split a big finding into `Part of #N` PRs (via an integration branch) or several issues; marks which chunks can run in parallel by file overlap |
 | `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, with `Closes #N` / `Part of #N` |
 | `tick-checklist` | Tick the finished item, add result note and next chunk |
-| `merge-pr` | Watch checks, merge, reopen the issue if items remain |
+| `merge-pr` | Watch checks, merge, reopen the issue if items remain, then delete the merged head branch and its worktree |
 | `setup-ci` | Preview files and diffs (dry run), then install labels, templates, post-merge comment, labeler, stale bot, notify and tick-checklist on GitHub or GitLab |
 | `release` | Bump versions, date the changelog (optionally drafted from merged PRs), release PR, tag, publish release notes |
 | `review-pr` | Address review threads: fix, reply, resolve, re-request review |
-| `status` | Read-only digest of open issues, PRs, checks and who each waits on; filters idle PRs; reads several repos from the `repos` config key |
+| `status` | Read-only digest of open issues, PRs, checks and who each waits on; filters idle PRs; reads several repos from the `repos` config key; lists merged branches and offers a confirmed cleanup |
 | `backport` | Cherry-pick a merged PR onto a release branch and open the PR |
 | `hotfix` | Branch from the latest tag, fix, cut a patch release, carry the fix back |
 
@@ -41,7 +41,7 @@ Optional `.pr-steward.json` sets `workingBranch`, `defaultReviewer`, `mergeStrat
 
 ## CI templates
 
-`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope. The optional `stale-pr-nudge` piece comments once on idle PRs (`STALE_PR_DAYS`, default 3). The `tick-checklist` piece also reopens an issue closed with unticked items. The optional `notify` piece posts merged PRs/MRs (and GitHub releases) to Mattermost, Slack or Telegram; it needs a `NOTIFY_WEBHOOK_URL` secret and a `NOTIFY_KIND` variable.
+`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope. The optional `delete-merged-branch` piece deletes the head branch of a merged same-repo PR (the GitHub setting "Automatically delete head branches" is the no-workflow alternative). The optional `stale-pr-nudge` piece comments once on idle PRs (`STALE_PR_DAYS`, default 3). The `tick-checklist` piece also reopens an issue closed with unticked items. The optional `notify` piece posts merged PRs/MRs (and GitHub releases) to Mattermost, Slack or Telegram; it needs a `NOTIFY_WEBHOOK_URL` secret and a `NOTIFY_KIND` variable.
 
 ## Dependabot auto-merge
 
