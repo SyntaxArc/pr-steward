@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.5.0] - 2026-10-27
 
 - `review-pr` skill: address review threads, reply, resolve and re-request review.
 - `status` skill: read-only digest of open issues, PRs, checks and waiting-on.
