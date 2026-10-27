@@ -21,12 +21,13 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 5. Chunk PR into an integration branch: merge automatically once checks are green and the item is ticked. Final PR to the working branch: do not merge; confirm a reviewer is named and leave it to them, unless the user explicitly says to merge it.
 6. Merge with `mergeStrategy` if set; else the strategy the repo already uses (check `git log` for merge vs squash); ask only if unclear.
 7. Verify the linked issue against the checklist: closed only if every item is ticked. Closed with unticked items -> tick the finished ones or reopen it. Never leave a closed issue with unticked items unless the user says so.
-8. Delete the head branch only after the PR shows MERGED (never before: deleting the head of an open PR closes it). Delete the integration branch after its final PR merges. Sync the working branch (`workingBranch` if set) locally.
+8. Clean up only after the PR shows MERGED (never before: deleting the head of an open PR closes it). Skip fork PRs. Delete the remote head branch, then the local branch; if `git worktree list` shows a worktree on it, `git worktree remove` it first. Delete the integration branch after its final PR merges. Then `git fetch --prune` and `git worktree prune`. Never delete the working branch (`workingBranch` if set), `main`/`master`, a `release/*` branch (tags are not branches) or a branch that still has an open PR. Sync the working branch locally.
 
 ## Do not
 
 - Merge with red or pending checks.
 - Merge a conflicting or behind PR, or force-push without `--force-with-lease`.
 - Delete a branch before confirming the PR state is MERGED.
+- Delete the working branch, `main`/`master`, a `release/*` branch, a fork PR branch or a branch with an open PR.
 - Skip the issue check after merge.
 - Merge with the checklist item unticked.
