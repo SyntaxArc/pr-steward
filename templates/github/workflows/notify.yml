@@ -1,0 +1,44 @@
+# Posts the link and title of a merged pull request or a published release to a chat webhook.
+# Needs the repository secret NOTIFY_WEBHOOK_URL. For Telegram it is https://api.telegram.org/bot<TOKEN>/sendMessage.
+# Needs the repository variables NOTIFY_KIND (mattermost | slack | telegram) and, for Telegram, NOTIFY_TELEGRAM_CHAT_ID.
+name: Notify chat
+
+on:
+  pull_request:
+    types: [closed]
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    # A pull request closed without a merge posts nothing.
+    if: github.event_name == 'release' || github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+    - name: Post to the chat webhook
+      env:
+        NOTIFY_WEBHOOK_URL: ${{ secrets.NOTIFY_WEBHOOK_URL }}
+        NOTIFY_KIND: ${{ vars.NOTIFY_KIND }}
+        NOTIFY_TELEGRAM_CHAT_ID: ${{ vars.NOTIFY_TELEGRAM_CHAT_ID }}
+        # Titles are untrusted: they reach the shell only through environment variables.
+        EVENT: ${{ github.event_name }}
+        REPO: ${{ github.repository }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        RELEASE_URL: ${{ github.event.release.html_url }}
+        RELEASE_TITLE: ${{ github.event.release.name || github.event.release.tag_name }}
+      run: |
+        [ -n "$NOTIFY_WEBHOOK_URL" ] || { echo "NOTIFY_WEBHOOK_URL is not set, skipping"; exit 0; }
+        if [ "$EVENT" = release ]; then
+          text="Released in $REPO: $RELEASE_TITLE $RELEASE_URL"
+        else
+          text="Merged in $REPO: $PR_TITLE $PR_URL"
+        fi
+        case "${NOTIFY_KIND:-mattermost}" in
+          mattermost | slack) body=$(jq -n --arg text "$text" '{text: $text}') ;;
+          telegram) body=$(jq -n --arg text "$text" --arg chat "$NOTIFY_TELEGRAM_CHAT_ID" '{chat_id: $chat, text: $text}') ;;
+          *) echo "Unknown NOTIFY_KIND: $NOTIFY_KIND" >&2; exit 1 ;;
+        esac
+        printf '%s' "$body" | curl -sf --max-time 30 -H 'Content-Type: application/json' -d @- "$NOTIFY_WEBHOOK_URL" > /dev/null
