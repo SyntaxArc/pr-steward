@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.6.0] - 2026-10-27
 
 - `merge-pr`: after MERGED, delete the remote and local head branch and its worktree; never the working branch, release branches or branches with an open PR.
 - `setup-ci`: `delete-merged-branch` piece (GitHub workflow, GitLab job) for merged same-repo PRs.
