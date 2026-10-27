@@ -10,14 +10,14 @@ Installs the files in `${CLAUDE_PLUGIN_ROOT}/templates/` into the current repo.
 
 ## Steps
 
-1. Detect host from `git remote get-url origin`: `github.com` -> GitHub, otherwise GitLab. Ask if unclear.
+1. Detect host (see `${CLAUDE_PLUGIN_ROOT}/reference/host-commands.md`). Ask if unclear.
 2. Ask which pieces (multi-select): `labels`, `templates`, `merged-comment`, `labeler`, `stale`.
 3. For each chosen piece, check the target exists first. Never overwrite a file without showing the diff and asking.
 4. Copy per the table, then review the files with the user.
 
 | Piece | GitHub | GitLab |
 |---|---|---|
-| labels | `scripts/create-labels.sh` using `gh label create` | same script using `glab label create` |
+| labels | `scripts/create-labels.sh github` | `scripts/create-labels.sh gitlab` (scoped `::` names) |
 | templates | `.github/ISSUE_TEMPLATE/*`, `.github/pull_request_template.md` | `.gitlab/issue_templates/*`, `.gitlab/merge_request_templates/*` |
 | merged-comment | `.github/workflows/pr-merged-issue-comment.yml` | `.gitlab-ci.yml` job from `templates/gitlab/merged-comment.gitlab-ci.yml` |
 | labeler | `.github/workflows/labeler.yml` + `.github/labeler.yml` | not available: apply labels in `open-pr` |
