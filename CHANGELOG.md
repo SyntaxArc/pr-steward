@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.4.0] - 2026-10-27
 
 - Optional `.pr-steward.json` (`workingBranch`, `defaultReviewer`, `mergeStrategy`) read by `open-pr`, `merge-pr` and `release`; see `reference/config.md`.
 - CI: `check_catalog.py` checks changelog dates and version order.
