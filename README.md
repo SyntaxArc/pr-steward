@@ -13,13 +13,15 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 
 | Skill | Purpose |
 |---|---|
-| `new-issue` | Create labeled issues (type, area, priority) with a PR-sized checklist; optionally asks for a Jira, Confluence or docs link |
-| `split-issue` | Split a big finding into `Part of #N` PRs (via an integration branch) or several issues |
+| `new-issue` | Create labeled issues (type, area, priority) with a PR-sized checklist; optionally asks for a Jira, Confluence or docs link; can create issues from review output or TODOs |
+| `split-issue` | Split a big finding into `Part of #N` PRs (via an integration branch) or several issues; marks which chunks can run in parallel by file overlap |
 | `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, with `Closes #N` / `Part of #N` |
 | `tick-checklist` | Tick the finished item, add result note and next chunk |
 | `merge-pr` | Watch checks, merge, reopen the issue if items remain |
-| `setup-ci` | Preview files and diffs (dry run), then install labels, templates, post-merge comment, labeler, stale bot on GitHub or GitLab |
-| `release` | Bump versions, date the changelog, release PR, tag, publish release notes |
+| `setup-ci` | Preview files and diffs (dry run), then install labels, templates, post-merge comment, labeler, stale bot, notify and tick-checklist on GitHub or GitLab |
+| `release` | Bump versions, date the changelog (optionally drafted from merged PRs), release PR, tag, publish release notes |
+| `review-pr` | Address review threads: fix, reply, resolve, re-request review |
+| `status` | Read-only digest of open issues, PRs, checks and who each waits on |
 
 ## Rules the flow follows
 
