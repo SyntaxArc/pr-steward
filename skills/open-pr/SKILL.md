@@ -21,9 +21,17 @@ description: >-
 8. Final PR only: ask the user who to assign it to (GitHub login or name), then pass `--assignee <login>` (GitLab: `--assignee`). Never merge it; the assignee reviews and merges.
 9. Run `tick-checklist` before merge if checks already pass.
 
+## Hygiene
+
+- Keep each change to one purpose and preserve the user's existing uncommitted changes.
+- Keep the PR description current when behavior changes during review.
+- Run the project's configured formatter, linter/type checker, targeted tests and security checks before opening; security-sensitive changes (network adapters, auth, cryptography, uploads, secrets/config) need security validation.
+- Do not touch changelogs, versions, tags or releases unless the project policy or the user asks.
+
 ## Do not
 
 - Mix unrelated changes or lockfile churn.
+- Include secrets, generated credentials or large artifacts.
 - Use `Closes #N` on a chunk PR; only the final PR or a single-PR issue closes it.
 - Open the final PR before every checklist item is ticked.
 - Mention AI tools in commits or PR text.
