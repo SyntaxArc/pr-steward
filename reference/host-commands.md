@@ -18,6 +18,8 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | create PR/MR | `gh pr create --title T --body-file F --label a,b` | `glab mr create --title T --description "$(cat F)" --label a,b --target-branch BASE --remove-source-branch --yes` |
 | assign / review on create | `gh pr create ... --assignee @me --reviewer LOGIN` | `glab mr create ... --assignee USER --reviewer USER` (`glab api user \| jq -r .username` for the current user) |
 | watch checks | `gh pr checks N --watch` | `glab ci status --live` |
+| read mergeability | `gh pr view N --json mergeStateStatus,mergeable` (`DIRTY`/`CONFLICTING` = conflict, `BEHIND` = needs rebase, `CLEAN` = ok) | `glab mr view N -F json \| jq -r .detailed_merge_status` (`conflict`/`need_rebase` = stop, `mergeable` = ok) |
+| push rebased branch | `git push --force-with-lease` | `git push --force-with-lease` |
 | merge | `gh pr merge N --merge` (or `--squash`) | `glab mr merge N --yes` (add `--squash`; `--when-pipeline-succeeds` waits for the pipeline) |
 
 ## Differences
