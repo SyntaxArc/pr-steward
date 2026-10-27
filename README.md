@@ -13,7 +13,7 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 
 | Skill | Purpose |
 |---|---|
-| `new-issue` | Create labeled issues (type, area, priority) with a PR-sized checklist |
+| `new-issue` | Create labeled issues (type, area, priority) with a PR-sized checklist; optionally asks for a Jira, Confluence or docs link |
 | `split-issue` | Split a big finding into `Part of #N` PRs (via an integration branch) or several issues |
 | `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, with `Closes #N` / `Part of #N` |
 | `tick-checklist` | Tick the finished item, add result note and next chunk |
@@ -27,9 +27,13 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 - An issue stays open until every checklist item is ticked.
 - Project policy files (`AGENTS.md`, `CONTRIBUTING.md`) override the defaults here.
 
+## Config
+
+Optional `.pr-steward.json` sets `workingBranch`, `defaultReviewer` and `mergeStrategy`, so `open-pr`, `merge-pr` and `release` ask less. See `reference/config.md`.
+
 ## CI templates
 
-`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope.
+`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope.
 
 ## Dependabot auto-merge
 
