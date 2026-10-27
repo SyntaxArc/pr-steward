@@ -1,0 +1,49 @@
+# Ticks checklist items on the issues the merged MR refers to.
+#   "Part of #N (item K)"  ticks item K (the Kth "- [ ]" line, counted from 1) in the issue description.
+#   "Closes #N"            ticks every remaining item ("Fixes" and "Resolves" work the same).
+# A bare "Part of #N" without "(item K)" ticks nothing.
+# Needs a masked CI variable GITLAB_API_TOKEN with the api scope. The MR description is untrusted text: it is only
+# parsed with grep and jq and never run as shell.
+# resource_group runs the jobs one at a time, so two merges do not overwrite each other's edits.
+tick-issue-checklist:
+  stage: .post
+  image: alpine:3
+  resource_group: tick-checklist
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  before_script:
+    - apk add --no-cache curl jq
+  script:
+    - |
+      api="$CI_API_V4_URL/projects/$CI_PROJECT_ID"
+      mr=$(curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" "$api/repository/commits/$CI_COMMIT_SHA/merge_requests" | jq '.[0]')
+      [ "$mr" != "null" ] || exit 0
+      body=$(echo "$mr" | jq -r '.description // ""' | tr -d '\r')
+      {
+        printf '%s\n' "$body" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | grep -oE '[0-9]+$' | sed 's/$/ all/'
+        printf '%s\n' "$body" | grep -oiE 'part of #[0-9]+ \(item [0-9]+\)' \
+          | sed -E 's/.*#([0-9]+) \(item ([0-9]+)\)/\1 \2/'
+      } | jq -R -s -r '
+          split("\n") | map(select(length > 0) | split(" ")) | group_by(.[0])
+          | .[] | "\(.[0][0]) \(if any(.[]; .[1] == "all") then "all" else (map(.[1]) | unique | join(",")) end)"
+        ' > refs.txt
+      while read -r issue items; do
+        items=$(echo "$items" | tr ',' ' ')
+        curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" "$api/issues/$issue" | jq -r '.description // ""' > old.md \
+          || { echo "issue #$issue not found"; continue; }
+        awk -v items="$items" '
+          BEGIN { n = split(items, a, " "); for (i = 1; i <= n; i++) want[a[i]] = 1 }
+          /^[ \t]*(```|~~~)/ { fence = !fence }
+          !fence && match($0, /^[ \t]*[-*] \[[ xX]\]/) {
+            k++
+            if (substr($0, RLENGTH - 1, 1) == " " && (items == "all" || (k in want)))
+              $0 = substr($0, 1, RLENGTH - 2) "x]" substr($0, RLENGTH + 1)
+          }
+          { print }
+        ' old.md > new.md
+        if cmp -s old.md new.md; then echo "nothing to tick on #$issue"; continue; fi
+        curl -sf --request PUT --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+          --data-urlencode "description@new.md" "$api/issues/$issue" > /dev/null
+      done < refs.txt

@@ -1,0 +1,82 @@
+# Ticks checklist items on the issues a merged pull request refers to.
+#   "Part of #N (item K)"  ticks item K (the Kth "- [ ]" line, counted from 1) in the issue body.
+#   "Closes #N"            ticks every remaining item ("Fixes" and "Resolves" work the same).
+# A bare "Part of #N" without "(item K)" ticks nothing.
+# Needs no secrets. The job token needs the permissions set below: issues: write, pull-requests: read.
+# Edits run one at a time per issue (concurrency group), so two merges do not overwrite each other. GitHub keeps only
+# one waiting run per group, so merge many pull requests for the same issue at the same moment with care.
+name: Tick issue checklist after a merge
+
+on:
+  # pull_request_target gives a token that can write to issues for pull requests from forks too. Nothing from the pull
+  # request is checked out or run: its body is untrusted text, read only through an environment variable.
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  parse:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    outputs:
+      refs: ${{ steps.refs.outputs.refs }}
+    steps:
+    - name: Read the issue references from the pull request body
+      id: refs
+      env:
+        PR_BODY: ${{ github.event.pull_request.body }}
+      run: |
+        body=$(printf '%s' "$PR_BODY" | tr -d '\r')
+        {
+          printf '%s\n' "$body" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | grep -oE '[0-9]+$' | sed 's/$/ all/'
+          printf '%s\n' "$body" | grep -oiE 'part of #[0-9]+ \(item [0-9]+\)' \
+            | sed -E 's/.*#([0-9]+) \(item ([0-9]+)\)/\1 \2/'
+        } | jq -R -s -c '
+            split("\n") | map(select(length > 0) | split(" ")) | group_by(.[0])
+            | map({issue: .[0][0],
+                   items: (if any(.[]; .[1] == "all") then "all" else (map(.[1]) | unique | join(" ")) end)})
+          ' > refs.json
+        echo "refs=$(cat refs.json)" >> "$GITHUB_OUTPUT"
+
+  tick:
+    needs: parse
+    if: needs.parse.outputs.refs != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      pull-requests: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        ref: ${{ fromJSON(needs.parse.outputs.refs) }}
+    concurrency:
+      group: tick-checklist-${{ matrix.ref.issue }}
+      cancel-in-progress: false
+    steps:
+    - name: Tick the checklist
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        # Digits and spaces only, or the word "all": built by the parse job from a strict pattern.
+        ISSUE: ${{ matrix.ref.issue }}
+        ITEMS: ${{ matrix.ref.items }}
+      run: |
+        case "$ISSUE" in ''|*[!0-9]*) exit 1 ;; esac
+        case "$ITEMS" in ''|*[!0-9\ allAL]*) exit 1 ;; esac
+        gh issue view "$ISSUE" --repo "$REPO" --json body --jq '.body // ""' > old.md \
+          || { echo "::warning::issue #$ISSUE not found"; exit 0; }
+        awk -v items="$ITEMS" '
+          BEGIN { n = split(items, a, " "); for (i = 1; i <= n; i++) want[a[i]] = 1 }
+          /^[ \t]*(```|~~~)/ { fence = !fence }
+          !fence && match($0, /^[ \t]*[-*] \[[ xX]\]/) {
+            k++
+            if (substr($0, RLENGTH - 1, 1) == " " && (items == "all" || (k in want)))
+              $0 = substr($0, 1, RLENGTH - 2) "x]" substr($0, RLENGTH + 1)
+          }
+          { print }
+        ' old.md > new.md
+        if cmp -s old.md new.md; then echo "nothing to tick on #$ISSUE"; exit 0; fi
+        gh issue edit "$ISSUE" --repo "$REPO" --body-file new.md

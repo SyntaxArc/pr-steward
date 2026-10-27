@@ -18,7 +18,7 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 4. Commit: conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`), imperative subject, reason in body. Focused commits only.
 5. Look up an existing PR/MR first: by branch (`gh pr list --head <branch> --state all`) and by issue (search for `#N` in open PRs/MRs). Found: push to the branch, update its labels, assignee and description with the edit command, report its number, and do not create another. Reopen it only if closed and unmerged. Not found: push and open the PR/MR with the host command, with the assignee and reviewer from steps 8-9 (ask the reviewer question before opening).
 6. PR body: what changed, why, how tested, then **exactly one** reference line:
-   - chunk PR into an integration branch: `Part of #N`
+   - chunk PR into an integration branch: `Part of #N (item K)`, where K is the position (from 1) of the checklist item the PR finishes. The `tick-checklist` CI piece reads this line and ticks item K after the merge; a bare `Part of #N` ticks nothing
    - final PR from the integration branch to the working branch: `Closes #N`
    - single-PR issue: `Closes #N`
 7. Labels: copy from the issue.
