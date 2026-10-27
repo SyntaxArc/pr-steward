@@ -16,6 +16,13 @@ body:
       description: Minimal steps or code that reproduce the problem.
     validations:
       required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Reference link
+      description: Optional. Jira, Confluence or docs URL this issue comes from.
+    validations:
+      required: false
   - type: textarea
     id: checklist
     attributes:
