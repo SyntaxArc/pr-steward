@@ -15,7 +15,7 @@ Claude Code plugin for an issue-driven dev flow: **issue with checklist -> small
 |---|---|
 | `new-issue` | Create labeled issues (type, area, priority) with a PR-sized checklist |
 | `split-issue` | Split a big finding into `Part of #N` PRs (via an integration branch) or several issues |
-| `open-pr` | Branch, conventional commits, labeled PR/MR with `Closes #N` / `Part of #N` |
+| `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, with `Closes #N` / `Part of #N` |
 | `tick-checklist` | Tick the finished item, add result note and next chunk |
 | `merge-pr` | Watch checks, merge, reopen the issue if items remain |
 | `setup-ci` | Install labels, templates, post-merge comment, labeler, stale bot on GitHub or GitLab |
