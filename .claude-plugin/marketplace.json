@@ -1,0 +1,12 @@
+{
+  "name": "pr-steward",
+  "owner": { "name": "SyntaxArc" },
+  "plugins": [
+    {
+      "name": "pr-steward",
+      "source": ".",
+      "description": "Issue-driven dev flow: labeled issues with checklists, small PRs, checklist updates, merge, and GitHub/GitLab CI setup",
+      "version": "0.1.0"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# Adapt the globs to this repository's layout.
+area:ci:
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "*.md"

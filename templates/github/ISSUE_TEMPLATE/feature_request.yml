@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose an improvement or new feature
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      description: One PR-sized chunk per item.
+      value: |
+        - [ ] chunk 1
+        - [ ] tests and docs
+    validations:
+      required: false

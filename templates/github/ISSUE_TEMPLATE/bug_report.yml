@@ -1,0 +1,28 @@
+name: Bug report
+description: Report something that is broken or behaves unexpectedly
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: What is wrong? Include error messages and tracebacks.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal steps or code that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      description: One PR-sized chunk per item.
+      value: |
+        - [ ] fix
+        - [ ] test
+    validations:
+      required: false
