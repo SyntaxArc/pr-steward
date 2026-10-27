@@ -12,7 +12,7 @@ jobs:
   catalog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: python3 scripts/check_catalog.py
       - run: python3 -m unittest discover -s tests -v
       - run: bash -n scripts/create-labels.sh
@@ -20,7 +20,7 @@ jobs:
   links:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Check markdown links
         uses: lycheeverse/lychee-action@v2
         with:
