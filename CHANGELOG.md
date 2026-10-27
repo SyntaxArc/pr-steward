@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0] - 2026-10-27
 
 - `open-pr`: absorbed the commit, branch and PR hygiene rules from the archipy plugin's `contributing-for-apps` rule (one purpose per change, keep description current, run gates, security validation, no changelog or release changes unless asked).
 - Multi-PR issues use an integration branch: chunk PRs merge into it, one final PR goes to the working branch with `Closes #N`, assigned to a named person and left unmerged. `split-issue`, `open-pr` and `merge-pr` ask for the working branch and the assignee.
