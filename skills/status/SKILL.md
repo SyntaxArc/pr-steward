@@ -1,7 +1,7 @@
 ---
 name: status
 description: >-
-  Print a read-only digest of open issues and PRs/MRs: next checklist item, check state, mergeability, who each waits on. Use for "what's open", "status of the issues", "what is waiting on review".
+  Print a read-only digest of open issues and PRs/MRs: next checklist item, check state, mergeability, who each waits on. Use for "what's idle", "what is stuck", "what's open", "status of the issues", "what is waiting on review".
 ---
 
 # Status
@@ -22,7 +22,11 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
    - green, clean, no reviewer -> "needs a reviewer"
    - draft -> author
    - issue with no open PR -> assignee, or "unassigned"
-5. Print one compact digest, no preamble:
+5. Idle filter, only when asked ("idle", "stuck", "awaiting review") or when the user gives N days. Default N is 3. Flag a PR/MR when either holds:
+   - idle: last activity (`updatedAt` / `updated_at`) is older than N days
+   - awaiting review: a review is requested but none given yet (`reviewRequests` set, no `reviews`)
+   Print only flagged items, with "idle Nd" or "awaiting review Nd". Read-only: only report them. To comment on idle PRs, point to the opt-in `stale-pr-nudge` piece of `setup-ci`; never comment from this skill.
+6. Print one compact digest, no preamble:
 
 ```
 Issues

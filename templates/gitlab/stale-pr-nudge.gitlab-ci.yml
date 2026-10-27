@@ -1,0 +1,28 @@
+# Comments once on open, non-draft merge requests with no activity for STALE_PR_DAYS days (default 3). Never closes anything.
+# Runs only from a scheduled pipeline: create one under CI/CD > Schedules.
+# Needs a masked CI variable GITLAB_API_TOKEN with the api scope, to list and comment on merge requests.
+stale-mr-nudge:
+  stage: .post
+  image: alpine:3
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  before_script:
+    - apk add --no-cache curl jq coreutils
+  script:
+    - |
+      days="${STALE_PR_DAYS:-3}"
+      case "$days" in '' | *[!0-9]*) echo "STALE_PR_DAYS must be a number" >&2; exit 1 ;; esac
+      marker='<!-- pr-steward:stale-pr-nudge -->'
+      cutoff=$(date -u -d "$days days ago" +%Y-%m-%dT%H:%M:%SZ)
+      api="$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests"
+      # Only numeric iids reach the shell: titles and descriptions are never read here.
+      curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" "$api?state=opened&wip=no&updated_before=$cutoff&per_page=100" |
+        jq -r '.[].iid' |
+        while read -r iid; do
+          if curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" "$api/$iid/notes?per_page=100" | jq -e --arg m "$marker" 'any(.[]; .body | contains($m))' > /dev/null; then
+            continue
+          fi
+          body="$marker
+      This merge request has had no activity for $days days. If it is ready, please request a review; if it is blocked, say what it waits on. It will not be closed automatically."
+          curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" --data-urlencode "body=$body" "$api/$iid/notes" > /dev/null
+        done
