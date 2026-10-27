@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- `merge-pr`: runs `tick-checklist` before the merge and fixes a closed issue with unticked items after it. `tick-checklist` is idempotent so `merge-pr` can call it.
+
 ## [0.3.0] - 2026-10-27
 
 - `open-pr`: every PR/MR is assigned to the current user without asking, and the user is asked who should review (`--reviewer`).
