@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Optional `.pr-steward.json` (`workingBranch`, `defaultReviewer`, `mergeStrategy`) read by `open-pr`, `merge-pr` and `release`; see `reference/config.md`.
+- CI: `check_catalog.py` checks changelog dates and version order.
+- `new-issue` asks once for an optional reference link (Jira, Confluence, docs) and adds a `## References` section; issue templates get the same optional field.
 - CI: `dependabot-automerge.yml` enables auto-merge on Dependabot semver-patch PRs; minor and major stay manual.
 - `merge-pr`: runs `tick-checklist` before the merge and fixes a closed issue with unticked items after it. `tick-checklist` is idempotent so `merge-pr` can call it.
 - `setup-ci`: dry-run step lists each file to create or change with its diff and writes nothing until the user confirms.
