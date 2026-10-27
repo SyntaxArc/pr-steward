@@ -33,6 +33,8 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | reply to review thread | `gh api graphql -f query='mutation($t:ID!,$b:String!){addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$t,body:$b}){comment{id}}}' -f t=THREAD_ID -f b=T` | `glab mr note N --reply DISCUSSION_ID -m T` (or `glab api -X POST "projects/:id/merge_requests/N/discussions/DISCUSSION_ID/notes" -f body=T`) |
 | resolve review thread | `gh api graphql -f query='mutation($t:ID!){resolveReviewThread(input:{threadId:$t}){thread{isResolved}}}' -f t=THREAD_ID` | `glab api -X PUT "projects/:id/merge_requests/N/discussions/DISCUSSION_ID" -f resolved=true` |
 | re-request review | `gh pr edit N --add-reviewer LOGIN` (re-requests a reviewer who already reviewed) | `glab mr update N --reviewer USER` (adds to the current list: pass every reviewer to keep) |
+| view CI run / pipeline | `gh run view ID --json name,headSha,conclusion,jobs,url` | `glab ci get -p ID -F json` (pipeline id; `glab ci get` uses the current branch) |
+| failed job log | `gh run view ID --log-failed \| tail -n 30` | `glab ci trace JOB_ID \| tail -n 30` (job ids: `glab ci get -p ID -F json`, or `glab api "projects/:id/pipelines/ID/jobs?scope[]=failed"`) |
 
 ## Differences
 
