@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+- Hooks: `SessionStart` reminder to use the skills; `PreToolUse` guard for `gh`/`glab` merge and create, rtk-aware, fail-open, `PR_STEWARD_GUARD=off` to disable.
+- `backport` skill: cherry-pick a merged PR onto a release branch and open the PR.
+- `hotfix` skill: branch from the latest tag, fix, patch release, carry the fix back.
+- `status`: idle and awaiting-review filter, and a multi-repo digest from the `repos` config key; `setup-ci` `stale-pr-nudge` piece.
+- `split-issue`: tracking issue with linked per-repo issues for one feature across repos.
+- `new-issue`: draft an issue from a failing CI run.
+- `open-pr` and `merge-pr`: warn when a PR exceeds `maxFiles` or `maxLines` (config).
+- CI: the `tick-checklist` templates reopen an issue closed with unticked items.
+
 ## [0.5.0] - 2026-10-27
 
 - `review-pr` skill: address review threads, reply, resolve and re-request review.
