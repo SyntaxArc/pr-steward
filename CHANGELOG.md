@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- `merge-pr`: after MERGED, delete the remote and local head branch and its worktree; never the working branch, release branches or branches with an open PR.
+- `setup-ci`: `delete-merged-branch` piece (GitHub workflow, GitLab job) for merged same-repo PRs.
+- `status`: lists remote branches already merged into the working branch and offers a confirmed bulk delete.
 - Hooks: `SessionStart` reminder to use the skills; `PreToolUse` guard for `gh`/`glab` merge and create, rtk-aware, fail-open, `PR_STEWARD_GUARD=off` to disable.
 - `backport` skill: cherry-pick a merged PR onto a release branch and open the PR.
 - `hotfix` skill: branch from the latest tag, fix, patch release, carry the fix back.
