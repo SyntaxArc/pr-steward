@@ -1,0 +1,33 @@
+name: Delete the head branch after a merge
+
+# The simpler alternative needs no workflow: turn on "Automatically delete head branches" in the repository settings.
+
+on:
+  # Plain pull_request: nothing from the pull request is checked out or run, and the head ref only reaches the shell
+  # through an environment variable.
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-branch:
+    # Merged, same-repository pull requests only (forks are skipped), never the default branch, main, master or release/*.
+    if: >-
+      github.event.pull_request.merged == true
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.head.ref != github.event.repository.default_branch
+      && github.event.pull_request.head.ref != 'main'
+      && github.event.pull_request.head.ref != 'master'
+      && !startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+    - name: Delete the head branch
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      run: |
+        # An already deleted branch (for example by the repository setting) is not an error.
+        gh api -X DELETE "repos/$REPO/git/refs/heads/$HEAD_REF" || echo "Branch $HEAD_REF is already gone or protected."
