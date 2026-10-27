@@ -32,3 +32,16 @@ For the checklist shape:
 1. Ask the user which branch is the **working branch** (`development`, `main` or `master`) unless project rules or the conversation already say.
 2. Create the integration branch from the working branch (`feat|fix|chore|ci/<topic>`) and push it.
 3. Note the integration branch in the issue body, so every chunk PR targets it.
+
+## Parallel plan
+
+For two or more chunks:
+
+1. List the files each chunk touches.
+2. Mark chunks with disjoint files **parallel-safe**. Chunks sharing a file are **sequential**; order them by dependency.
+3. Recommend one subagent per parallel-safe chunk, each in its own git worktree off the integration branch (or the working branch when there is none).
+4. Keep README and changelog edits for the last chunk's PR only.
+5. Subagents must not edit the issue body. The main session ticks items once, so edits do not overwrite each other.
+6. The main session rebases and merges chunk PRs in order.
+
+Record the plan in the issue body, one line per chunk: `- [ ] <chunk> (files: a, b; parallel-safe | after <chunk>)`.
