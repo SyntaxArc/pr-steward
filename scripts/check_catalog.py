@@ -10,6 +10,31 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME_RE = re.compile(r"^[a-z0-9-]{1,64}$")
+HEADING_RE = re.compile(r"^## \[(\d+)\.(\d+)\.(\d+)\](.*)$", re.MULTILINE)
+DATED_RE = re.compile(r"^ - \d{4}-\d{2}-\d{2}\s*$")
+
+
+def parse_version(text: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in text.split("."))
+
+
+def check_changelog(text: str, version: str) -> list[str]:
+    """Check the changelog has a dated section for version, no newer release, and descending order."""
+    errors: list[str] = []
+    current = parse_version(version)
+    found: list[tuple[int, ...]] = []
+    for match in HEADING_RE.finditer(text):
+        found.append((int(match.group(1)), int(match.group(2)), int(match.group(3))))
+        if found[-1] == current and not DATED_RE.match(match.group(4)):
+            errors.append(f"CHANGELOG.md section for {version} has no date (expected '## [{version}] - YYYY-MM-DD')")
+    if current not in found:
+        errors.append(f"CHANGELOG.md has no section for {version}")
+    if found and max(found) > current:
+        latest = ".".join(map(str, max(found)))
+        errors.append(f"plugin version {version} is lower than changelog version {latest}")
+    if any(a <= b for a, b in zip(found, found[1:])):
+        errors.append("CHANGELOG.md versions are not in strictly descending order")
+    return errors
 
 
 def check() -> list[str]:
@@ -33,8 +58,8 @@ def check() -> list[str]:
     if not (ROOT / "reference/host-commands.md").exists():
         errors.append("reference/host-commands.md missing")
     changelog = ROOT / "CHANGELOG.md"
-    if changelog.exists() and f"## [{plugin['version']}]" not in changelog.read_text():
-        errors.append(f"CHANGELOG.md has no section for {plugin['version']}")
+    if changelog.exists():
+        errors.extend(check_changelog(changelog.read_text(), plugin["version"]))
     return errors
 
 
