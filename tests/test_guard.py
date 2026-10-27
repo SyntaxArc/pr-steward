@@ -19,6 +19,23 @@ class MatchTest(unittest.TestCase):
         for cmd in ("gh pr view 5", "gh pr list", "glab mr view 2", "gh issue create", "echo gh pr merge"):
             self.assertEqual(guard.match_commands(cmd), [], cmd)
 
+    def test_rtk_forms_match_like_plain(self) -> None:
+        for cmd in ("rtk gh pr merge 5", "rtk proxy gh pr merge 5", "FOO=1 rtk gh pr merge 5",
+                    "cd x && rtk gh pr merge 5", "rtk proxy FOO=1 gh pr merge 5", "a | rtk proxy gh pr merge 5",
+                    "false || rtk gh pr merge 5", "echo 'a && b'; rtk gh pr merge 5"):
+            found = guard.match_commands(cmd)
+            self.assertEqual([(i.host, i.action, i.args) for i in found], [("gh", "merge", ["5"])], cmd)
+
+    def test_rtk_create_and_glab(self) -> None:
+        self.assertEqual(guard.match_commands("rtk gh pr create -a me")[0].action, "create")
+        self.assertEqual(guard.match_commands("rtk proxy glab mr merge 3")[0].host, "glab")
+
+    def test_rtk_negatives(self) -> None:
+        for cmd in ("rtk gh pr view 5", "rtk proxy gh pr list", "rtk git status", "rtk",
+                    "rtk proxy", "echo gh pr merge", "rtk echo gh pr merge 5", "echo 'rtk gh pr merge 5'",
+                    "echo 'x' && echo \"a; gh pr merge 5\""):
+            self.assertEqual(guard.match_commands(cmd), [], cmd)
+
     def test_unparsable_is_empty(self) -> None:
         self.assertEqual(guard.match_commands("gh pr merge 'unterminated"), [])
 
