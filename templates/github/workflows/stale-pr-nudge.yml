@@ -1,0 +1,36 @@
+name: "Nudge idle pull requests"
+
+# Comments once on open, non-draft PRs with no activity for STALE_PR_DAYS days.
+# Never closes or labels anything. Set the repository variable STALE_PR_DAYS to change the default of 3.
+
+on:
+  schedule:
+    - cron: "0 7 * * 1-5"  # Weekdays at 7:00 UTC
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      STALE_PR_DAYS: ${{ vars.STALE_PR_DAYS || '3' }}
+    steps:
+      - name: Comment on idle pull requests
+        run: |
+          marker='<!-- pr-steward:stale-pr-nudge -->'
+          case "$STALE_PR_DAYS" in '' | *[!0-9]*) echo "STALE_PR_DAYS must be a number" >&2; exit 1 ;; esac
+          cutoff=$(date -u -d "$STALE_PR_DAYS days ago" +%Y-%m-%dT%H:%M:%SZ)
+          # Only numbers reach the shell: titles, branch names and bodies are never read here.
+          gh pr list --state open --limit 200 --json number,isDraft,updatedAt \
+            --jq ".[] | select(.isDraft | not) | select(.updatedAt < \"$cutoff\") | .number" |
+          while read -r number; do
+            if gh pr view "$number" --json comments --jq '.comments[].body' | grep -qF "$marker"; then
+              continue
+            fi
+            gh pr comment "$number" --body "$marker
+          This pull request has had no activity for $STALE_PR_DAYS days. If it is ready, please request a review; if it is blocked, say what it waits on. It will not be closed automatically."
+          done
