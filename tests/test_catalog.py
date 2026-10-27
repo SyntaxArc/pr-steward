@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -34,6 +35,21 @@ class CatalogTest(unittest.TestCase):
         text = "## [0.2.0] - 2026-01-01\n\n## [0.3.0] - 2026-02-01\n"
         errors = check_catalog.check_changelog(text, "0.3.0")
         self.assertTrue(any("descending" in e for e in errors))
+
+    def test_hooks(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "hooks").mkdir()
+            hooks = root / "hooks/hooks.json"
+            body = '{"hooks": {"SessionStart": [{"hooks": [{"type": "command", "command": "\\"${CLAUDE_PLUGIN_ROOT}/hooks/x.sh\\""}]}]}}'
+            hooks.write_text(body)
+            errors = check_catalog.check_hooks(hooks, root)
+            self.assertEqual(len(errors), 1)
+            self.assertIn("hooks/x.sh does not exist", errors[0])
+            (root / "hooks/x.sh").write_text("#!/bin/sh\n")
+            self.assertEqual(check_catalog.check_hooks(hooks, root), [])
+            hooks.write_text("{not json")
+            self.assertIn("cannot parse", check_catalog.check_hooks(hooks, root)[0])
 
 
 if __name__ == "__main__":

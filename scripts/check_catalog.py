@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 NAME_RE = re.compile(r"^[a-z0-9-]{1,64}$")
 HEADING_RE = re.compile(r"^## \[(\d+)\.(\d+)\.(\d+)\](.*)$", re.MULTILINE)
+PLUGIN_ROOT_PATH_RE = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\s\"']+)")
 DATED_RE = re.compile(r"^ - \d{4}-\d{2}-\d{2}\s*$")
 
 
@@ -37,6 +38,35 @@ def check_changelog(text: str, version: str) -> list[str]:
     return errors
 
 
+def hook_commands(node: object) -> list[str]:
+    """Collect every 'command' string in a parsed hooks file."""
+    found: list[str] = []
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "command" and isinstance(value, str):
+                found.append(value)
+            else:
+                found.extend(hook_commands(value))
+    elif isinstance(node, list):
+        for item in node:
+            found.extend(hook_commands(item))
+    return found
+
+
+def check_hooks(path: Path, root: Path) -> list[str]:
+    """Check the hooks file parses as JSON and every command script it references exists."""
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, ValueError) as exc:
+        return [f"{path.name}: cannot parse as JSON ({exc})"]
+    errors: list[str] = []
+    for command in hook_commands(data):
+        for relative in PLUGIN_ROOT_PATH_RE.findall(command):
+            if not (root / relative).is_file():
+                errors.append(f"{path.name}: hook script {relative} does not exist")
+    return errors
+
+
 def check() -> list[str]:
     errors: list[str] = []
     plugin = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
@@ -60,6 +90,11 @@ def check() -> list[str]:
     changelog = ROOT / "CHANGELOG.md"
     if changelog.exists():
         errors.extend(check_changelog(changelog.read_text(), plugin["version"]))
+    hooks = ROOT / "hooks/hooks.json"
+    if hooks.exists():
+        errors.extend(check_hooks(hooks, ROOT))
+    else:
+        errors.append("hooks/hooks.json missing")
     return errors
 
 
