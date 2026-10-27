@@ -23,7 +23,7 @@ Installs the files in `${CLAUDE_PLUGIN_ROOT}/templates/` into the current repo.
 | merged-comment | `.github/workflows/pr-merged-issue-comment.yml` | `.gitlab-ci.yml` job from `templates/gitlab/merged-comment.gitlab-ci.yml` |
 | labeler | `.github/workflows/labeler.yml` + `.github/labeler.yml` | `.gitlab-ci.yml` job from `templates/gitlab/labeler.gitlab-ci.yml` (path-to-label map in `LABEL_MAP`) |
 | stale | `.github/workflows/close-stale-issues.yml` | GitLab policies or a scheduled pipeline |
-| tick-checklist | `.github/workflows/tick-checklist.yml` (ticks `Part of #N (item K)` and `Closes #N` items after a merge) | `.gitlab-ci.yml` job from `templates/gitlab/tick-checklist.gitlab-ci.yml` |
+| tick-checklist | `.github/workflows/tick-checklist.yml` (ticks `Part of #N (item K)` and `Closes #N` items after a merge; reopens a `Closes #N` issue that still has unticked items) | `.gitlab-ci.yml` job from `templates/gitlab/tick-checklist.gitlab-ci.yml` |
 | notify | `.github/workflows/notify.yml` | `.gitlab-ci.yml` job from `templates/gitlab/notify.gitlab-ci.yml` |
 
 6. Adapt `labeler.yml` globs (GitLab: `LABEL_MAP`) to the repo layout; do not ship placeholder globs.
