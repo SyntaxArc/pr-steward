@@ -16,15 +16,16 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 2. Pick the base. Normal PR: the working branch (project rules, then `workingBranch`; ask the user only if neither says: `development`, `main` or `master`). Chunk of a multi-PR issue: the issue's integration branch (create it from the working branch with `split-issue` if missing). Branch from the base: `feat|fix|chore|ci|refactor/<topic>`. Check project rules for forbidden prefixes.
 3. Run the project gates first (format, lint, tests; see `AGENTS.md`/`Makefile`).
 4. Commit: conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`), imperative subject, reason in body. Focused commits only.
-5. Look up an existing PR/MR first: by branch (`gh pr list --head <branch> --state all`) and by issue (search for `#N` in open PRs/MRs). Found: push to the branch, update its labels, assignee and description with the edit command, report its number, and do not create another. Reopen it only if closed and unmerged. Not found: push and open the PR/MR with the host command, with the assignee and reviewer from steps 8-9 (ask the reviewer question before opening).
-6. PR body: what changed, why, how tested, then **exactly one** reference line:
+5. Size check: run `git diff --shortstat BASE...HEAD` (BASE is the step 2 base) and count changed files and lines (insertions plus deletions). Above `maxFiles` (default 15) or `maxLines` (default 500) from `.pr-steward.json`: warn the user and suggest `split-issue`. A warning only: never block, and open the PR if the user goes on.
+6. Look up an existing PR/MR first: by branch (`gh pr list --head <branch> --state all`) and by issue (search for `#N` in open PRs/MRs). Found: push to the branch, update its labels, assignee and description with the edit command, report its number, and do not create another. Reopen it only if closed and unmerged. Not found: push and open the PR/MR with the host command, with the assignee and reviewer from steps 9-10 (ask the reviewer question before opening).
+7. PR body: what changed, why, how tested, then **exactly one** reference line:
    - chunk PR into an integration branch: `Part of #N (item K)`, where K is the position (from 1) of the checklist item the PR finishes. The `tick-checklist` CI piece reads this line and ticks item K after the merge; a bare `Part of #N` ticks nothing
    - final PR from the integration branch to the working branch: `Closes #N`
    - single-PR issue: `Closes #N`
-7. Labels: copy from the issue.
-8. Assign every PR/MR (chunk, single and final) to the current user: `--assignee @me` (GitLab: `--assignee <username>` from `glab api user`). Do not ask who to assign.
-9. Reviewer: `defaultReviewer` if set; else ask who should review (GitHub login or GitLab username). Pass `--reviewer <login>` when known; if the user names no one, skip it. Final PR: ask unless `defaultReviewer` is set. Never merge the final PR; the reviewer reviews and merges.
-10. Run `tick-checklist` before merge if checks already pass.
+8. Labels: copy from the issue.
+9. Assign every PR/MR (chunk, single and final) to the current user: `--assignee @me` (GitLab: `--assignee <username>` from `glab api user`). Do not ask who to assign.
+10. Reviewer: `defaultReviewer` if set; else ask who should review (GitHub login or GitLab username). Pass `--reviewer <login>` when known; if the user names no one, skip it. Final PR: ask unless `defaultReviewer` is set. Never merge the final PR; the reviewer reviews and merges.
+11. Run `tick-checklist` before merge if checks already pass.
 
 ## Hygiene
 
