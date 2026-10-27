@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 - `merge-pr`: runs `tick-checklist` before the merge and fixes a closed issue with unticked items after it. `tick-checklist` is idempotent so `merge-pr` can call it.
+- `setup-ci`: dry-run step lists each file to create or change with its diff and writes nothing until the user confirms.
 
 ## [0.3.0] - 2026-10-27
 

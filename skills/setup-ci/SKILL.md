@@ -13,7 +13,8 @@ Installs the files in `${CLAUDE_PLUGIN_ROOT}/templates/` into the current repo.
 1. Detect host (see `${CLAUDE_PLUGIN_ROOT}/reference/host-commands.md`). Ask if unclear.
 2. Ask which pieces (multi-select): `labels`, `templates`, `merged-comment`, `labeler`, `stale`.
 3. For each chosen piece, check the target exists first. Never overwrite a file without showing the diff and asking.
-4. Copy per the table, then review the files with the user.
+4. Dry run first: list every file to create or change, with its diff (new files in full, existing files as a diff). Write nothing. Ask the user to confirm.
+5. After confirmation, copy per the table, then review the files with the user.
 
 | Piece | GitHub | GitLab |
 |---|---|---|
@@ -23,6 +24,6 @@ Installs the files in `${CLAUDE_PLUGIN_ROOT}/templates/` into the current repo.
 | labeler | `.github/workflows/labeler.yml` + `.github/labeler.yml` | `.gitlab-ci.yml` job from `templates/gitlab/labeler.gitlab-ci.yml` (path-to-label map in `LABEL_MAP`) |
 | stale | `.github/workflows/close-stale-issues.yml` | GitLab policies or a scheduled pipeline |
 
-5. Adapt `labeler.yml` globs (GitLab: `LABEL_MAP`) to the repo layout; do not ship placeholder globs.
-6. GitLab needs a CI variable `GITLAB_API_TOKEN` (api scope) for the merged-comment and labeler jobs. Tell the user; never write a token to a file.
-7. Run the label script only after the user confirms; it creates labels on the remote.
+6. Adapt `labeler.yml` globs (GitLab: `LABEL_MAP`) to the repo layout; do not ship placeholder globs.
+7. GitLab needs a CI variable `GITLAB_API_TOKEN` (api scope) for the merged-comment and labeler jobs. Tell the user; never write a token to a file.
+8. Run the label script only after the user confirms; it creates labels on the remote.
