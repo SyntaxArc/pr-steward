@@ -19,6 +19,7 @@ Claude Code plugin for an issue-driven dev flow: **issue with checklist -> small
 | `tick-checklist` | Tick the finished item, add result note and next chunk |
 | `merge-pr` | Watch checks, merge, reopen the issue if items remain |
 | `setup-ci` | Preview files and diffs (dry run), then install labels, templates, post-merge comment, labeler, stale bot on GitHub or GitLab |
+| `release` | Bump versions, date the changelog, release PR, tag, publish release notes |
 
 ## Rules the flow follows
 

@@ -21,6 +21,8 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | read mergeability | `gh pr view N --json mergeStateStatus,mergeable` (`DIRTY`/`CONFLICTING` = conflict, `BEHIND` = needs rebase, `CLEAN` = ok) | `glab mr view N -F json \| jq -r .detailed_merge_status` (`conflict`/`need_rebase` = stop, `mergeable` = ok) |
 | push rebased branch | `git push --force-with-lease` | `git push --force-with-lease` |
 | merge | `gh pr merge N --merge` (or `--squash`) | `glab mr merge N --yes` (add `--squash`; `--when-pipeline-succeeds` waits for the pipeline) |
+| tag | `git tag -a vX.Y.Z -m X.Y.Z && git push origin vX.Y.Z` | same |
+| create release | `gh release create vX.Y.Z --title X.Y.Z --notes-file F` | `glab release create vX.Y.Z --name X.Y.Z --notes-file F` |
 
 ## Differences
 
