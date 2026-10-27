@@ -28,6 +28,16 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
 6. Create the issue with the host command, labels included.
 7. Several unrelated findings -> several issues, never one catch-all.
 
+## From a findings list
+
+Input is a list of findings: pasted review output, or a grep of `TODO`/`FIXME`.
+
+1. Parse each finding: title, file:line evidence, severity. For a grep, one line is one candidate; keep `path:line` and the comment text.
+2. Group duplicates (same cause, same fix) into one finding with all file:line locations listed. Do not merge unrelated findings.
+3. Show the plan as a list, one entry per issue: title, labels (type, area, priority), file:line evidence. Ask the user to confirm, edit, or drop entries. **Create nothing before the answer.**
+4. Ask once for the optional reference link (step 5 above). Reuse it in every issue; skip `## References` if declined.
+5. On confirmation, create one issue per finding with the steps above: file:line evidence in the body, labels, and `## References` if a link was given. Report the issue numbers and URLs.
+
 ## Do not
 
 - Fix before the issue exists.
