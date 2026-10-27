@@ -12,6 +12,7 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
 
 ## Steps
 
+0. Repos: read `repos` (array of `owner/repo`) from `.pr-steward.json`. Missing or empty: current repo only. Otherwise run every list/view command below once per repo with `--repo owner/repo` (GitLab: `-R owner/repo`).
 1. List open issues and open PRs/MRs (see host commands).
 2. Per issue: read the body, find the first `- [ ]` item. None left -> "all ticked".
 3. Per PR/MR: read check state and mergeability. Link it to its issue via `Closes`/`Part of #N` in the body.
@@ -36,6 +37,16 @@ PRs
 ```
 
 Group conflicting or failing PRs first. Zero open items: say "nothing open".
+
+With `repos`, print one block per repo, headed by `owner/repo`, in config order, with the same digest inside. A repo with nothing open prints "nothing open". A repo that cannot be read prints "unreadable: <reason>" and the rest continue. Cross references stay `owner/repo#N`.
+
+```
+owner/api
+Issues
+#12 feat: add endpoint | next: write handler | PR #15 | waits: author
+owner/web
+nothing open
+```
 
 ## Do not
 

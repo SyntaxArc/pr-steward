@@ -33,6 +33,17 @@ For the checklist shape:
 2. Create the integration branch from the working branch (`feat|fix|chore|ci/<topic>`) and push it.
 3. Note the integration branch in the issue body, so every chunk PR targets it.
 
+## Several repos
+
+For a feature that spans repos (list in `.pr-steward.json` key `repos`, or ask the user):
+
+1. Create one **tracking issue** in the current repo (use `new-issue`). It holds the goal, the merge order and a checklist with one line per repo issue: `- [ ] owner/repo#N <chunk>`.
+2. Create one linked issue per repo with `gh issue create --repo owner/repo` (GitLab: `glab issue create -R owner/repo`). Each body starts with `Part of owner/tracking-repo#T`. See host commands.
+3. State the **merge order** in the tracking issue, one line per step: `1. owner/api#12 -> 2. owner/web#7 (after owner/api#12)`. Producers merge before consumers.
+4. Always write cross references as `owner/repo#N`; a bare `#N` only resolves in its own repo.
+5. Copy the labels to each issue; each repo needs the label to exist.
+6. Each repo issue is closed by its own PR (`Closes #N` in that repo). The tracking issue is ticked with `tick-checklist`, never closed by a PR in another repo.
+
 ## Parallel plan
 
 For two or more chunks:

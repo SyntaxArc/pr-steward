@@ -43,4 +43,5 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 - GitLab calls PRs merge requests (MRs).
 - Label scopes: GitHub uses `area:ci`, GitLab scoped labels use `area::ci`. Match what the repo already has (`glab label list`); `scripts/create-labels.sh gitlab` creates the `::` form. One scoped label per scope is allowed on an item, which fits one type/priority.
 - Closing keywords `Closes #N`, `Fixes #N`, `Resolves #N` work on both hosts. `Part of #N` is only a convention: neither host links it, so the post-merge comment job and `tick-checklist` carry that reference.
+- Another repo: `gh ... --repo owner/repo`, `glab ... -R owner/repo`; write cross references as `owner/repo#N`.
 - GitLab has no required-status default: use `--when-pipeline-succeeds` or watch the pipeline before merging.
