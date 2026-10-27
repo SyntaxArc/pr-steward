@@ -29,6 +29,10 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | list open issues | `gh issue list --state open --json number,title,assignees` | `glab issue list -F json` |
 | list open PRs/MRs | `gh pr list --state open --json number,title,headRefName,isDraft,reviewRequests,assignees,statusCheckRollup,mergeStateStatus` | `glab mr list -F json` (`draft`, `detailed_merge_status`, `head_pipeline.status` give draft, mergeability, checks) |
 | view PR/MR checks | `gh pr checks N` | `glab mr view N -F json \| jq -r .head_pipeline.status` |
+| list unresolved review threads | `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){reviewThreads(first:100){nodes{id isResolved isOutdated path line comments(first:20){nodes{databaseId author{login} body}}}}}}}' -f o=OWNER -f r=REPO -F n=N` (keep `isResolved: false`) | `glab api "projects/:id/merge_requests/N/discussions" \| jq '[.[] \| select(.notes[0].resolvable and (.notes[0].resolved\|not))]'` |
+| reply to review thread | `gh api graphql -f query='mutation($t:ID!,$b:String!){addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$t,body:$b}){comment{id}}}' -f t=THREAD_ID -f b=T` | `glab mr note N --reply DISCUSSION_ID -m T` (or `glab api -X POST "projects/:id/merge_requests/N/discussions/DISCUSSION_ID/notes" -f body=T`) |
+| resolve review thread | `gh api graphql -f query='mutation($t:ID!){resolveReviewThread(input:{threadId:$t}){thread{isResolved}}}' -f t=THREAD_ID` | `glab api -X PUT "projects/:id/merge_requests/N/discussions/DISCUSSION_ID" -f resolved=true` |
+| re-request review | `gh pr edit N --add-reviewer LOGIN` (re-requests a reviewer who already reviewed) | `glab mr update N --reviewer USER` (adds to the current list: pass every reviewer to keep) |
 
 ## Differences
 
