@@ -1,6 +1,6 @@
 # pr-steward
 
-Claude Code plugin for an issue-driven dev flow: **issue with checklist -> small PRs -> tick checklist -> merge -> close**.
+Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases](https://github.com/SyntaxArc/pr-steward/releases)) for an issue-driven dev flow: **issue with checklist -> small PRs -> tick checklist -> merge -> close**.
 
 ## Install
 
@@ -30,3 +30,7 @@ Claude Code plugin for an issue-driven dev flow: **issue with checklist -> small
 ## CI templates
 
 `templates/github/` and `templates/gitlab/`; installed by `setup-ci`. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope.
+
+## Host CLIs
+
+The skills drive GitHub through [`gh`](https://cli.github.com/manual/) and GitLab through [`glab`](https://docs.gitlab.com/cli/). See `reference/host-commands.md`.

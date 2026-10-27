@@ -1,5 +1,7 @@
 # Host commands
 
+CLI docs: [`gh`](https://cli.github.com/manual/), [`glab`](https://docs.gitlab.com/cli/).
+
 Detect the host with `git remote get-url origin`: `github.com` -> `gh`, otherwise `glab`. Ask when unclear.
 Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrides it.
 
