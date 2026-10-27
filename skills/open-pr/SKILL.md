@@ -14,7 +14,7 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
 2. Pick the base. Normal PR: the working branch (ask the user: `development`, `main` or `master`, unless rules or the conversation say). Chunk of a multi-PR issue: the issue's integration branch (create it from the working branch with `split-issue` if missing). Branch from the base: `feat|fix|chore|ci|refactor/<topic>`. Check project rules for forbidden prefixes.
 3. Run the project gates first (format, lint, tests; see `AGENTS.md`/`Makefile`).
 4. Commit: conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`), imperative subject, reason in body. Focused commits only.
-5. Push and open the PR/MR with the host command, with the assignee and reviewer from steps 8-9 (ask the reviewer question before opening).
+5. Look up an existing PR/MR first: by branch (`gh pr list --head <branch> --state all`) and by issue (search for `#N` in open PRs/MRs). Found: push to the branch, update its labels, assignee and description with the edit command, report its number, and do not create another. Reopen it only if closed and unmerged. Not found: push and open the PR/MR with the host command, with the assignee and reviewer from steps 8-9 (ask the reviewer question before opening).
 6. PR body: what changed, why, how tested, then **exactly one** reference line:
    - chunk PR into an integration branch: `Part of #N`
    - final PR from the integration branch to the working branch: `Closes #N`
