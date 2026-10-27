@@ -28,4 +28,4 @@ Claude Code plugin for an issue-driven dev flow: **issue with checklist -> small
 
 ## CI templates
 
-`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. GitLab merged-comment needs a masked `GITLAB_API_TOKEN` CI variable.
+`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope.
