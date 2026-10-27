@@ -18,7 +18,7 @@ Claude Code plugin for an issue-driven dev flow: **issue with checklist -> small
 | `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, with `Closes #N` / `Part of #N` |
 | `tick-checklist` | Tick the finished item, add result note and next chunk |
 | `merge-pr` | Watch checks, merge, reopen the issue if items remain |
-| `setup-ci` | Install labels, templates, post-merge comment, labeler, stale bot on GitHub or GitLab |
+| `setup-ci` | Preview files and diffs (dry run), then install labels, templates, post-merge comment, labeler, stale bot on GitHub or GitLab |
 
 ## Rules the flow follows
 
