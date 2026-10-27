@@ -31,6 +31,10 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 
 `templates/github/` and `templates/gitlab/`; installed by `setup-ci`. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope.
 
+## Dependabot auto-merge
+
+`.github/workflows/dependabot-automerge.yml` enables auto-merge on Dependabot patch bumps; minor and major stay manual. It needs the repo setting "Allow auto-merge" and branch protection on `main` that requires the CI checks, otherwise GitHub merges without waiting for them.
+
 ## Host CLIs
 
 The skills drive GitHub through [`gh`](https://cli.github.com/manual/) and GitLab through [`glab`](https://docs.gitlab.com/cli/). See `reference/host-commands.md`.

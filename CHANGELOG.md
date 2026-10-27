@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- CI: `dependabot-automerge.yml` enables auto-merge on Dependabot semver-patch PRs; minor and major stay manual.
 - `merge-pr`: runs `tick-checklist` before the merge and fixes a closed issue with unticked items after it. `tick-checklist` is idempotent so `merge-pr` can call it.
 - `setup-ci`: dry-run step lists each file to create or change with its diff and writes nothing until the user confirms.
 - `open-pr`: look up an existing PR/MR for the branch and issue before creating one; update and reuse it when found.
