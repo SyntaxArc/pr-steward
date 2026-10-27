@@ -25,6 +25,7 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | merge | `gh pr merge N --merge` (or `--squash`) | `glab mr merge N --yes` (add `--squash`; `--when-pipeline-succeeds` waits for the pipeline) |
 | tag | `git tag -a vX.Y.Z -m X.Y.Z && git push origin vX.Y.Z` | same |
 | create release | `gh release create vX.Y.Z --title X.Y.Z --notes-file F` | `glab release create vX.Y.Z --name X.Y.Z --notes-file F` |
+| list PRs/MRs merged since date | `gh pr list --state merged --search "merged:>=DATE" --json number,title,labels,url,closingIssuesReferences` | `glab mr list --merged --updated-after DATE -F json` (labels, `web_url` in output; filter by `merged_at`) |
 
 ## Differences
 
