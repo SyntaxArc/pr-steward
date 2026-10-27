@@ -28,6 +28,10 @@ def check() -> list[str]:
             errors.append(f"{skill}: frontmatter name missing or != directory name")
         if not re.search(r"^description:", text, re.MULTILINE):
             errors.append(f"{skill}: description missing")
+        if "host-commands.md" not in text:
+            errors.append(f"{skill}: does not link reference/host-commands.md")
+    if not (ROOT / "reference/host-commands.md").exists():
+        errors.append("reference/host-commands.md missing")
     changelog = ROOT / "CHANGELOG.md"
     if changelog.exists() and f"## [{plugin['version']}]" not in changelog.read_text():
         errors.append(f"CHANGELOG.md has no section for {plugin['version']}")

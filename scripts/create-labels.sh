@@ -3,8 +3,10 @@
 set -euo pipefail
 host="${1:-github}"
 mk() { # name color description
-  if [ "$host" = github ]; then gh label create "$1" --color "$2" --description "$3" --force
-  else glab label create --name "$1" --color "#$2" --description "$3" || true; fi
+  local name="$1"
+  [ "$host" = gitlab ] && name="${name/:/::}"
+  if [ "$host" = github ]; then gh label create "$name" --color "$2" --description "$3" --force
+  else glab label create --name "$name" --color "#$2" --description "$3" || true; fi
 }
 mk bug d73a4a "Something is broken"
 mk enhancement a2eeef "New feature or request"

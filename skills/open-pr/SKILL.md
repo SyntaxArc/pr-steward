@@ -6,13 +6,15 @@ description: >-
 
 # Open PR
 
+Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-commands.md`. Detect the host from `git remote get-url origin`.
+
 ## Steps
 
 1. Read the issue and its checklist. Pick the single chunk this PR completes.
 2. Pick the base. Normal PR: the working branch (ask the user: `development`, `main` or `master`, unless rules or the conversation say). Chunk of a multi-PR issue: the issue's integration branch (create it from the working branch with `split-issue` if missing). Branch from the base: `feat|fix|chore|ci|refactor/<topic>`. Check project rules for forbidden prefixes.
 3. Run the project gates first (format, lint, tests; see `AGENTS.md`/`Makefile`).
 4. Commit: conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`), imperative subject, reason in body. Focused commits only.
-5. Push and open: `gh pr create --title ... --body-file ... --label ...` (GitLab: `glab mr create`).
+5. Push and open the PR/MR with the host command.
 6. PR body: what changed, why, how tested, then **exactly one** reference line:
    - chunk PR into an integration branch: `Part of #N`
    - final PR from the integration branch to the working branch: `Closes #N`

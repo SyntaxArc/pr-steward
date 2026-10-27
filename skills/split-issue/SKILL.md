@@ -8,6 +8,8 @@ description: >-
 
 One PR moves one small chunk, never a whole plan.
 
+Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-commands.md`. Detect the host from `git remote get-url origin`.
+
 ## Choose a shape
 
 - **Checklist**: one issue, several PRs straight to the working branch. Each PR says `Part of #N`; only the last says `Closes #N`. Use only when the user does not want an integration branch.
@@ -16,11 +18,11 @@ One PR moves one small chunk, never a whole plan.
 
 ## Steps
 
-1. Read the issue: `gh issue view <N>`.
+1. Read the issue.
 2. Cut chunks so each is reviewable alone, passes checks alone, and leaves the repo working (no half-migrations).
 3. Order chunks; note dependencies ("blocked by #M").
-4. Checklist shape: edit the issue body with `gh issue edit <N> --body-file ...` adding one `- [ ]` per chunk.
-5. Several-issues shape: create child issues (use `new-issue`), then link them in the parent checklist as `- [ ] #M`. On GitHub, add them as sub-issues when available.
+4. Checklist shape: edit the issue body with the host command, adding one `- [ ]` per chunk.
+5. Several-issues shape: create child issues (use `new-issue`), then link them in the parent checklist as `- [ ] #M`. On GitHub, add them as sub-issues when available; GitLab renders `- [ ] #M` as a task list.
 6. Copy the parent labels to each child.
 
 ## Integration branch

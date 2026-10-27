@@ -8,13 +8,15 @@ description: >-
 
 Repos without required checks merge immediately on `--auto`, so watch checks first.
 
+Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-commands.md`. Detect the host from `git remote get-url origin`.
+
 ## Steps
 
-1. `gh pr checks <N> --watch` (GitLab: `glab ci status --live`). Stop and report any failure with the failing job and last error line.
+1. Watch checks/pipeline. Stop and report any failure with the failing job and last error line.
 2. Confirm the checklist item is ticked (`tick-checklist`).
 3. Chunk PR into an integration branch: merge automatically once checks are green and the item is ticked. Final PR to the working branch: do not merge; confirm it is assigned and leave it to the assignee, unless the user explicitly says to merge it.
-4. Merge: `gh pr merge <N> --merge` (use the strategy the repo already uses; check `git log` for merge vs squash).
-5. Verify the linked issue: closed only if every item is ticked; otherwise `gh issue reopen <N>`.
+4. Merge with the strategy the repo already uses (check `git log` for merge vs squash).
+5. Verify the linked issue: closed only if every item is ticked; otherwise reopen it.
 6. Delete the head branch only after the PR shows MERGED (never before: deleting the head of an open PR closes it). Delete the integration branch after its final PR merges. Sync the working branch locally.
 
 ## Do not
