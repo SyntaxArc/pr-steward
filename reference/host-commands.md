@@ -26,6 +26,9 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | tag | `git tag -a vX.Y.Z -m X.Y.Z && git push origin vX.Y.Z` | same |
 | create release | `gh release create vX.Y.Z --title X.Y.Z --notes-file F` | `glab release create vX.Y.Z --name X.Y.Z --notes-file F` |
 | list PRs/MRs merged since date | `gh pr list --state merged --search "merged:>=DATE" --json number,title,labels,url,closingIssuesReferences` | `glab mr list --merged --updated-after DATE -F json` (labels, `web_url` in output; filter by `merged_at`) |
+| list open issues | `gh issue list --state open --json number,title,assignees` | `glab issue list -F json` |
+| list open PRs/MRs | `gh pr list --state open --json number,title,headRefName,isDraft,reviewRequests,assignees,statusCheckRollup,mergeStateStatus` | `glab mr list -F json` (`draft`, `detailed_merge_status`, `head_pipeline.status` give draft, mergeability, checks) |
+| view PR/MR checks | `gh pr checks N` | `glab mr view N -F json \| jq -r .head_pipeline.status` |
 
 ## Differences
 
