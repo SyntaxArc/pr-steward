@@ -13,10 +13,10 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
 ## Steps
 
 1. Watch checks/pipeline. Stop and report any failure with the failing job and last error line.
-2. Confirm the checklist item is ticked (`tick-checklist`).
+2. Run `tick-checklist` for this PR's chunk, then confirm the item is `[x]`. Do not only check it: tick it before merging.
 3. Chunk PR into an integration branch: merge automatically once checks are green and the item is ticked. Final PR to the working branch: do not merge; confirm a reviewer is named and leave it to them, unless the user explicitly says to merge it.
 4. Merge with the strategy the repo already uses (check `git log` for merge vs squash).
-5. Verify the linked issue: closed only if every item is ticked; otherwise reopen it.
+5. Verify the linked issue against the checklist: closed only if every item is ticked. Closed with unticked items -> tick the finished ones or reopen it. Never leave a closed issue with unticked items unless the user says so.
 6. Delete the head branch only after the PR shows MERGED (never before: deleting the head of an open PR closes it). Delete the integration branch after its final PR merges. Sync the working branch locally.
 
 ## Do not
@@ -24,3 +24,4 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
 - Merge with red or pending checks.
 - Delete a branch before confirming the PR state is MERGED.
 - Skip the issue check after merge.
+- Merge with the checklist item unticked.
