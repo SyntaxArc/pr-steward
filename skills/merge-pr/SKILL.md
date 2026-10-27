@@ -16,7 +16,7 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 
 1. Watch checks/pipeline. Stop and report any failure with the failing job and last error line.
 2. After checks pass, read mergeability (see host commands). Stop on `DIRTY`/`CONFLICTING` or `BEHIND`: do not merge. Rebase the head branch on the base (`git fetch origin && git rebase origin/BASE`), resolve conflicts with the user, push with `--force-with-lease`, then watch checks again (step 1). Merge only when mergeability is clean.
-3. Run `tick-checklist` for this PR's chunk, then confirm the item is `[x]`. Do not only check it: tick it before merging.
+3. Run `tick-checklist` for this PR's chunk, which ticks through `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/tick.py ISSUE ITEM` instead of editing the body by hand, then confirm the item is `[x]`. Do not only check it: tick it before merging.
 4. Size check: run `git diff --shortstat BASE...HEAD` (BASE is the PR base) and count changed files and lines (insertions plus deletions). Above `maxFiles` (default 15) or `maxLines` (default 500) from `.pr-steward.json`: warn the user and suggest `split-issue`. A warning only: never block the merge.
 5. Chunk PR into an integration branch: merge automatically once checks are green and the item is ticked. Final PR to the working branch: do not merge; confirm a reviewer is named and leave it to them, unless the user explicitly says to merge it.
 6. Merge with `mergeStrategy` if set; else the strategy the repo already uses (check `git log` for merge vs squash); ask only if unclear.
