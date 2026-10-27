@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.3.0] - 2026-10-27
 
 - `open-pr`: every PR/MR is assigned to the current user without asking, and the user is asked who should review (`--reviewer`).
 - CI: lychee link check and Dependabot for GitHub Actions.
