@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- CI: lychee link check and Dependabot for GitHub Actions.
 - `setup-ci`: GitLab MR labeler template (`templates/gitlab/labeler.gitlab-ci.yml`) that adds area labels from changed paths.
 - All skills support `gh` and `glab` through `reference/host-commands.md`.
 - `create-labels.sh gitlab` creates scoped `::` labels.
