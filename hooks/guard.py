@@ -59,13 +59,30 @@ def split_segments(command: str) -> list[list[str]]:
     return [seg for seg in segments if seg]
 
 
-def match_commands(command: str) -> list[Invocation]:
-    """Pure matcher: find gh/glab merge and create invocations in a command line (issue #69 extends this)."""
-    found: list[Invocation] = []
-    for seg in split_segments(command):
-        words = list(seg)
+def strip_prefixes(words: list[str]) -> list[str]:
+    """Drop leading env assignments (`FOO=1`), then `rtk` and `rtk proxy`, from one simple command.
+
+    The rtk token-saving proxy may rewrite `gh pr merge 5` to `rtk gh pr merge 5`, or the agent may call
+    `rtk proxy gh pr merge 5`. Hook order is therefore irrelevant: the guard sees either the plain or the
+    rewritten form and normalizes both to the same words before matching.
+    """
+    words = list(words)
+    while words and ENV_ASSIGN_RE.match(words[0]):
+        words.pop(0)
+    if words and os.path.basename(words[0]) == "rtk":
+        words.pop(0)
+        if words and words[0] == "proxy":
+            words.pop(0)
         while words and ENV_ASSIGN_RE.match(words[0]):
             words.pop(0)
+    return words
+
+
+def match_commands(command: str) -> list[Invocation]:
+    """Pure matcher: find gh/glab merge and create invocations in a command line, rtk-aware (see strip_prefixes)."""
+    found: list[Invocation] = []
+    for seg in split_segments(command):
+        words = strip_prefixes(seg)
         if len(words) < 3:
             continue
         host = os.path.basename(words[0])
