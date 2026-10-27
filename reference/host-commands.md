@@ -12,6 +12,9 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | edit issue body | `gh issue edit N --body-file F` | `glab issue update N --description "$(cat F)"` |
 | comment on issue | `gh issue comment N --body T` | `glab issue note N -m T` |
 | reopen issue | `gh issue reopen N` | `glab issue reopen N` |
+| list PR/MR by branch | `gh pr list --head BRANCH --state all` | `glab mr list --source-branch BRANCH --all` |
+| find PR/MR by issue | `gh pr list --search "#N" --state all` | `glab mr list --search "#N" --all` |
+| edit PR/MR | `gh pr edit N --add-label a --add-assignee @me --body-file F` | `glab mr update N --label a --assignee USER --description "$(cat F)"` |
 | create PR/MR | `gh pr create --title T --body-file F --label a,b` | `glab mr create --title T --description "$(cat F)" --label a,b --target-branch BASE --remove-source-branch --yes` |
 | assign / review on create | `gh pr create ... --assignee @me --reviewer LOGIN` | `glab mr create ... --assignee USER --reviewer USER` (`glab api user \| jq -r .username` for the current user) |
 | watch checks | `gh pr checks N --watch` | `glab ci status --live` |
