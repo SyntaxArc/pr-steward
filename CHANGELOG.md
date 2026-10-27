@@ -7,6 +7,7 @@
 - `open-pr`: look up an existing PR/MR for the branch and issue before creating one; update and reuse it when found.
 - `merge-pr`: read mergeability after checks; on conflict or behind, rebase, push with `--force-with-lease` and re-watch checks before merging.
 - `release` skill: version bump, dated changelog, release PR, annotated tag and release notes on GitHub or GitLab.
+- CI: README and `reference/host-commands.md` now carry real links, so the lychee job verifies something and no longer needs `failIfEmpty: false`.
 
 ## [0.3.0] - 2026-10-27
 

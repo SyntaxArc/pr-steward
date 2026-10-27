@@ -24,8 +24,7 @@ jobs:
       - name: Check markdown links
         uses: lycheeverse/lychee-action@v2
         with:
-          # lychee.toml auto-loaded. Inputs only below. No links yet today, so an empty run must pass.
-          failIfEmpty: false
+          # lychee.toml auto-loaded. Inputs only below.
           args: >-
             --verbose
             --no-progress
