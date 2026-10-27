@@ -33,7 +33,7 @@ Optional `.pr-steward.json` sets `workingBranch`, `defaultReviewer` and `mergeSt
 
 ## CI templates
 
-`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope.
+`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope. The optional `notify` piece posts merged PRs/MRs (and GitHub releases) to Mattermost, Slack or Telegram; it needs a `NOTIFY_WEBHOOK_URL` secret and a `NOTIFY_KIND` variable.
 
 ## Dependabot auto-merge
 
