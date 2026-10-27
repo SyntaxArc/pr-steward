@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+- `review-pr` skill: address review threads, reply, resolve and re-request review.
+- `status` skill: read-only digest of open issues, PRs, checks and waiting-on.
+- `setup-ci`: `tick-checklist` piece ticks `Part of #N (item K)` and `Closes #N` checklist items after a merge; `open-pr` uses the `(item K)` reference format.
+- `split-issue`: lists files per chunk, marks parallel-safe chunks and guides subagents (own worktree, no issue-body edits, docs in the last PR).
+- `new-issue`: create issues from review output or TODOs after showing the plan.
+- `release`: optional draft of release notes from PRs merged since the last tag.
+
 ## [0.4.0] - 2026-10-27
 
 - Optional `.pr-steward.json` (`workingBranch`, `defaultReviewer`, `mergeStrategy`) read by `open-pr`, `merge-pr` and `release`; see `reference/config.md`.
