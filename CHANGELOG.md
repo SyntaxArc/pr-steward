@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- `SessionStart` hook lists the skills from the `skills/` directory, so new skills appear in the reminder automatically.
+
 ## [0.7.0] - 2026-10-28
 
 - `open-pr`/`merge-pr`: delete the source branch after merge. GitLab `--remove-source-branch` on create; GitHub checks the repo setting and offers to enable it, else `merge-pr` uses `--delete-branch`. Opt out with `deleteBranchOnMerge: false`.
