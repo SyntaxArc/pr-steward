@@ -24,8 +24,8 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 5. Commit and open the PR/MR `chore: release X.Y.Z` with type/area/priority labels, assigned to the current user (see `open-pr`; reviewer from `defaultReviewer`). Merge with `mergeStrategy` if set.
 6. Watch checks. Stop and report any failure.
 7. Merge only if the user asked for the release itself; otherwise leave it for the reviewer. Sync the working branch after merge.
-8. Tag the merge commit: `git tag -a vX.Y.Z -m "X.Y.Z"`, then `git push origin vX.Y.Z`.
-9. Publish the release with the `## [X.Y.Z]` section body as notes (see host commands).
+8. Tag the merge commit: `git tag -a vX.Y.Z -m "X.Y.Z"`, then `git push origin vX.Y.Z`. Verify the tag exists on the remote (see host commands).
+9. Publish the release with the `## [X.Y.Z]` section body as notes (see host commands). Verify the release exists; the read-back state, not the exit code, is the truth.
 10. Offer to post the release link. If `.pr-steward.json` has `announce` (`{"kind": "mattermost"|"slack"|"telegram", "channel": "..."}`), offer to post there; without it, offer Slack, issue or channel. Post only after the user agrees.
 
 ## Do not

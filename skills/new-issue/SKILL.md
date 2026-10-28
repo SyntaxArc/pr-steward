@@ -26,7 +26,8 @@ Host commands for `gh` and `glab`: `${CLAUDE_PLUGIN_ROOT}/reference/host-command
 
 5. Ask once, optionally, for a reference link (Jira, Confluence, Google Doc, spec, etc.). If given, add a `## References` section to the body. If the user has none or declines, skip it and do not ask again. Several issues from one source: ask once, reuse the link. Never required.
 6. Create the issue with the host command, labels included.
-7. Several unrelated findings -> several issues, never one catch-all.
+7. Read back: view the issue (see host commands) and verify labels, assignee and body sections (problem, checklist, `## References` if given). Fix a mismatch when safe; otherwise report it.
+8. Several unrelated findings -> several issues, never one catch-all.
 
 ## From a findings list
 
