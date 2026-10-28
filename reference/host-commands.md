@@ -43,6 +43,9 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | view PR/MR labels, assignees, reviewers, state | `gh pr view N --json labels,assignees,reviewRequests,state,baseRefName` | `glab mr view N -F json \| jq '{labels,assignees,reviewers,state,target_branch}'` |
 | view issue labels, assignees | `gh issue view N --json labels,assignees` | `glab issue view N -F json \| jq '{labels,assignees}'` |
 | check tag / release exists | `git ls-remote --tags origin vX.Y.Z`; `gh release view vX.Y.Z --json tagName,url` | `git ls-remote --tags origin vX.Y.Z`; `glab release view vX.Y.Z` |
+| link branch to issue | `gh issue develop N --name BRANCH` (errors if already linked: ignore) | put `/relate #N` (quick action) or `Related to #N` in the MR description |
+| view issue milestone, project | `gh issue view N --json milestone,projectItems` | `glab issue view N -F json \| jq '{milestone}'` (no project field) |
+| set PR/MR milestone, project | `gh pr edit N --milestone M --add-project P` | `glab mr update N --milestone M` (no project field) |
 
 ## Differences
 

@@ -18,16 +18,19 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 3. Run the project gates first (format, lint, tests; see `AGENTS.md`/`Makefile`).
 4. Commit: conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`), imperative subject, reason in body. Focused commits only.
 5. Size check: run `git diff --shortstat BASE...HEAD` (BASE is the step 2 base) and count changed files and lines (insertions plus deletions). Above `maxFiles` (default 15) or `maxLines` (default 500) from `.pr-steward.json`: warn the user and suggest `split-issue`. A warning only: never block, and open the PR if the user goes on.
-6. Look up an existing PR/MR first: by branch (`gh pr list --head <branch> --state all`) and by issue (search for `#N` in open PRs/MRs). Found: push to the branch, update its labels, assignee and description with the edit command, report its number, and do not create another. Reopen it only if closed and unmerged. Not found: push and open the PR/MR with the host command, with the assignee and reviewer from steps 9-10 (ask the reviewer question before opening).
+6. Look up an existing PR/MR first: by branch (`gh pr list --head <branch> --state all`) and by issue (search for `#N` in open PRs/MRs). Found: push to the branch, update its labels, assignee and description with the edit command, report its number, and do not create another. Reopen it only if closed and unmerged. Not found: push and open the PR/MR with the host command, with the assignee and reviewer from steps 10-11, and the milestone and project from step 8 (ask the reviewer question before opening).
 7. PR body: what changed, why, how tested, then **exactly one** reference line:
    - chunk PR into an integration branch: `Part of #N (item K)`, where K is the position (from 1) of the checklist item the PR finishes. The `tick-checklist` CI piece reads this line and ticks item K after the merge; a bare `Part of #N` ticks nothing
    - final PR from the integration branch to the working branch: `Closes #N`
    - single-PR issue: `Closes #N`
-8. Labels: copy from the issue.
-9. Assign every PR/MR (chunk, single and final) to the current user: `--assignee @me` (GitLab: `--assignee <username>` from `glab api user`). Do not ask who to assign.
-10. Reviewer: `defaultReviewer` if set; else ask who should review (GitHub login or GitLab username). Pass `--reviewer <login>` when known; if the user names no one, skip it. Final PR: ask unless `defaultReviewer` is set. Never merge the final PR; the reviewer reviews and merges.
-11. Read back after create or edit: view the PR/MR (see host commands) and compare labels, assignee, reviewer, base and the reference line with the intent. Fix a mismatch when safe (edit command); otherwise report it. The read-back state is the truth, not the command exit code.
-12. Run `tick-checklist` before merge if checks already pass.
+8. Labels, milestone, project: copy from the issue (view it, see host commands). GitHub: `--milestone M` and `--project P` on create, or `--add-project P` on edit, when the issue has them. GitLab: `--milestone M`; it has no project field, skip it. Assignee stays the current user.
+9. Link the PR/MR to the issue (`Closes` and `Part of` alike), since the reference line alone links nothing for `Part of`:
+   - GitHub: `gh issue develop N --name BRANCH` links the branch, so the PR shows under the issue's Development. Run it before or after pushing; treat "already linked" as success. For `Part of #N` also post one issue comment that mentions the PR number, unless the issue already has one for this PR.
+   - GitLab: put `/relate #N` (or `Related to #N`) in the MR description, beside the reference line.
+10. Assign every PR/MR (chunk, single and final) to the current user: `--assignee @me` (GitLab: `--assignee <username>` from `glab api user`). Do not ask who to assign.
+11. Reviewer: `defaultReviewer` if set; else ask who should review (GitHub login or GitLab username). Pass `--reviewer <login>` when known; if the user names no one, skip it. Final PR: ask unless `defaultReviewer` is set. Never merge the final PR; the reviewer reviews and merges.
+12. Read back after create or edit: view the PR/MR (see host commands) and compare labels, milestone, project, assignee, reviewer, base and the reference line with the intent. Also check that the issue lists the PR/MR (Development on GitHub, related merge requests on GitLab). If the host cannot link, say so and rely on the reference line. Fix a mismatch when safe (edit command); otherwise report it. The read-back state is the truth, not the command exit code.
+13. Run `tick-checklist` before merge if checks already pass.
 
 ## Hygiene
 
