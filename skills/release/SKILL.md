@@ -14,9 +14,10 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 
 ## Steps
 
-1. Get the version `X.Y.Z` (ask if missing). Start from an up-to-date working branch (`workingBranch`; ask only if missing) with a clean tree. Stop if `CHANGELOG.md` has no `## [Unreleased]` section with entries. If it is empty or thin, offer step 1a.
+1. Get the version `X.Y.Z`. If the user gave none, suggest it (step 1b) and ask. Start from an up-to-date working branch (`workingBranch`; ask only if missing) with a clean tree. Stop if `CHANGELOG.md` has no `## [Unreleased]` section with entries. If it is empty or thin, offer step 1a.
 
 1a. Optional: draft notes from merged PRs. Find the last tag date (`git log -1 --format=%cI $(git describe --tags --abbrev=0)`), list PRs/MRs merged since then (see host commands), and group them by label: enhancement (Added), bug (Fixed), documentation (Docs), others (Changed). One line per PR: title, PR link, linked issue link. Show the draft. Write it into `## [Unreleased]` only after the user confirms; never edit the changelog before that.
+1b. Suggest the bump when no version was given. List PRs/MRs merged since the last tag (see host commands). Any `breaking-change` label means major, else any `enhancement` means minor, else patch. While major is `0`, treat breaking as minor and say so. Show the reasoning (the PRs behind the pick) and ask the user to confirm or override. Never bump without confirmation.
 2. Branch `chore/release-X.Y.Z`.
 3. Bump `version` to `X.Y.Z` in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`.
 4. Rename `## [Unreleased]` to `## [X.Y.Z] - <today, YYYY-MM-DD>`. Do not add a new empty `Unreleased` heading.
@@ -25,7 +26,7 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 7. Merge only if the user asked for the release itself; otherwise leave it for the reviewer. Sync the working branch after merge.
 8. Tag the merge commit: `git tag -a vX.Y.Z -m "X.Y.Z"`, then `git push origin vX.Y.Z`.
 9. Publish the release with the `## [X.Y.Z]` section body as notes (see host commands).
-10. Offer to post the release link (Slack, issue, channel). Post only if the user agrees.
+10. Offer to post the release link. If `.pr-steward.json` has `announce` (`{"kind": "mattermost"|"slack"|"telegram", "channel": "..."}`), offer to post there; without it, offer Slack, issue or channel. Post only after the user agrees.
 
 ## Do not
 
