@@ -36,6 +36,12 @@ class CatalogTest(unittest.TestCase):
         errors = check_catalog.check_changelog(text, "0.3.0")
         self.assertTrue(any("descending" in e for e in errors))
 
+    def test_untrusted_text_link(self) -> None:
+        self.assertEqual(check_catalog.check_untrusted_text_link("see reference/untrusted-text.md"), [])
+        errors = check_catalog.check_untrusted_text_link("no link here")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("untrusted-text.md", errors[0])
+
     def test_hooks(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
