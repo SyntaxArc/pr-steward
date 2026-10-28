@@ -32,9 +32,9 @@ jobs:
       run: |
         body=$(printf '%s' "$PR_BODY" | tr -d '\r')
         {
-          printf '%s\n' "$body" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | grep -oE '[0-9]+$' | sed 's/$/ all/'
+          printf '%s\n' "$body" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | grep -oE '[0-9]+$' | sed 's/$/ all/' || true
           printf '%s\n' "$body" | grep -oiE 'part of #[0-9]+ \(item [0-9]+\)' \
-            | sed -E 's/.*#([0-9]+) \(item ([0-9]+)\)/\1 \2/'
+            | sed -E 's/.*#([0-9]+) \(item ([0-9]+)\)/\1 \2/' || true
         } | jq -R -s -c '
             split("\n") | map(select(length > 0) | split(" ")) | group_by(.[0])
             | map({issue: .[0][0],

@@ -24,10 +24,11 @@ jobs:
         PR_BODY: ${{ github.event.pull_request.body }}
       run: |
         # "Closes #1", "Fixes #2", "Resolves #3" and "Part of #4" in the pull request description.
-        printf '%s' "$PR_BODY" \
+        # grep exits 1 when the body has no reference; that must not fail the job under pipefail.
+        { printf '%s' "$PR_BODY" \
           | grep -oiE '(part of|closes|fixes|resolves) #[0-9]+' \
           | grep -oE '[0-9]+$' \
-          | sort -un \
+          | sort -un || true; } \
           | while read -r issue; do
               gh issue comment "$issue" --repo "$REPO" --body "Merged $PR_URL: $PR_TITLE"
             done
