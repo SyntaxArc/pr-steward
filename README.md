@@ -37,7 +37,17 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 
 ## Hooks
 
-`hooks/hooks.json` ships two hooks. `SessionStart` reminds Claude to use the pr-steward skills instead of raw `gh`/`glab` create and merge. `PreToolUse` on Bash guards `gh pr merge`, `glab mr merge` (blocks on red checks, conflicts or unticked linked-issue items) and warns on `gh pr create`, `glab mr create` without an assignee or `Closes`/`Part of` line. It also matches commands run through `rtk` or `rtk proxy`, fails open when `gh`/`glab` or the network is unavailable, and is disabled with `PR_STEWARD_GUARD=off`.
+`hooks/hooks.json` ships four hooks. `SessionStart` reminds Claude to use the pr-steward skills instead of raw `gh`/`glab` create and merge. `PreToolUse` on Bash guards `gh pr merge`, `glab mr merge` (blocks on red checks, conflicts or unticked linked-issue items) and warns on `gh pr create`, `glab mr create` without an assignee or `Closes`/`Part of` line. It also matches commands run through `rtk` or `rtk proxy`, fails open when `gh`/`glab` or the network is unavailable, and is disabled with `PR_STEWARD_GUARD=off`.
+
+`PostToolUse` on Bash reads the PR/MR back after `gh pr create`, `gh pr merge`, `glab mr create` and `glab mr merge` and adds one line of context (state, labels, assignee, reviewers), flagging a missing assignee or labels. `Stop` is a non-blocking end-of-turn warning about unpushed commits on a feature branch, an open PR whose linked issue has unticked items, and leftover scratch worktrees; it does nothing when the stop hook is already active. Both fail open and respect `PR_STEWARD_GUARD=off`.
+
+## Merge queue
+
+`merge-pr` and `land` detect a merge queue on the base branch (GitHub: a `merge_queue` rule from `gh api repos/OWNER/REPO/rules/branches/BASE`; GitLab: `--when-pipeline-succeeds`), enqueue with `gh pr merge N --auto` and wait until the PR reads MERGED instead of merging directly. Checks and mergeability are still verified first. Not tested against a live queue.
+
+## Tests
+
+`python3 -m unittest discover -s tests` runs the unit tests and the offline smoke tests (`tests/test_smoke_*.py`): a temp git repo, a local bare remote and a fake `gh` on `PATH`, with no network and no real host. They cover `scripts/tick.py`, the guard hook end to end and `scripts/land.sh`.
 
 ## Config
 
