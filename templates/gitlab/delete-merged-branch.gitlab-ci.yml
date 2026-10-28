@@ -30,9 +30,10 @@ delete-merged-branch:
         "$CI_DEFAULT_BRANCH"|main|master|develop|development|staging|production|stable|trunk|release/*) exit 0 ;;
       esac
       encoded=$(printf '%s' "$ref" | jq -sRr @uri)
-      # A protected branch is long-lived: never delete it.
+      # A protected branch is long-lived: never delete it. A branch that is already gone (deleted on merge) is a 404:
+      # nothing to delete, not a failure.
       protected=$(curl -sf --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches/$encoded" | jq -r '.protected')
-      [ "$protected" != "true" ] || exit 0
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches/$encoded" | jq -r '.protected' || echo gone)
+      [ "$protected" = "false" ] || exit 0
       curl -sf --request DELETE --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches/$encoded" || echo "Branch $ref is already gone or protected."
