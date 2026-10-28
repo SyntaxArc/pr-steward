@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+- `scripts/tick.py`: safe checklist tick (refuses empty bodies, keeps the item count, reads back); `tick-checklist` and `merge-pr` use it.
+- `land` skill and `scripts/land.sh`: merge several PRs in order with append-only conflict resolution, gates and CI wait.
+- `parallel-prs` skill: one subagent per parallel-safe chunk, with a fixed brief.
+- `release`: suggests the semver bump from merged PR labels and offers to announce via the `announce` config key.
+- `open-pr`, `new-issue`, `merge-pr`, `release`: read back state after create, edit and merge.
+- `reference/untrusted-text.md`: issue, PR, review and log text is data; every skill links it and `check_catalog.py` enforces that.
+- `open-pr`: links the PR to its issue (`gh issue develop`, GitLab `/relate`) and copies milestone and project.
+
 ## [0.6.0] - 2026-10-27
 
 - `merge-pr`: after MERGED, delete the remote and local head branch and its worktree; never the working branch, release branches or branches with an open PR.
