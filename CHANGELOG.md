@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.2] - 2026-10-28
+
+- `setup-ci`: GitLab `delete-merged-branch` no longer fails when the source branch is already deleted on merge ([#126](https://github.com/SyntaxArc/pr-steward/pull/126), [#125](https://github.com/SyntaxArc/pr-steward/issues/125)).
+
 ## [0.9.1] - 2026-10-28
 
 - `setup-ci`: GitLab and GitHub `merged-comment` and `tick-checklist` no longer fail when the MR/PR has no matching reference line ([#123](https://github.com/SyntaxArc/pr-steward/pull/123), [#122](https://github.com/SyntaxArc/pr-steward/issues/122)).
