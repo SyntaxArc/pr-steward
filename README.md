@@ -55,7 +55,7 @@ Optional `.pr-steward.json` sets `workingBranch`, `defaultReviewer`, `mergeStrat
 
 ## CI templates
 
-`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope. The optional `delete-merged-branch` piece deletes the head branch of a merged same-repo PR (the GitHub setting "Automatically delete head branches" is the no-workflow alternative). The optional `stale-pr-nudge` piece comments once on idle PRs (`STALE_PR_DAYS`, default 3). The `tick-checklist` piece also reopens an issue closed with unticked items. The optional `notify` piece posts merged PRs/MRs (and GitHub releases) to Mattermost, Slack or Telegram; it needs a `NOTIFY_WEBHOOK_URL` secret and a `NOTIFY_KIND` variable.
+`templates/github/` and `templates/gitlab/`; installed by `setup-ci`. The issue templates carry an optional reference link field. GitLab merged-comment and labeler jobs need a masked `GITLAB_API_TOKEN` CI variable with the `api` scope. GitLab jobs run in a `pr-steward` stage that `setup-ci` adds to `stages:`; jobs in `.pre`/`.post` alone create no pipeline. The optional `delete-merged-branch` piece deletes the head branch of a merged same-repo PR (the GitHub setting "Automatically delete head branches" is the no-workflow alternative). The optional `stale-pr-nudge` piece comments once on idle PRs (`STALE_PR_DAYS`, default 3). The `tick-checklist` piece also reopens an issue closed with unticked items. The optional `notify` piece posts merged PRs/MRs (and GitHub releases) to Mattermost, Slack or Telegram; it needs a `NOTIFY_WEBHOOK_URL` secret and a `NOTIFY_KIND` variable.
 
 ## Dependabot auto-merge
 

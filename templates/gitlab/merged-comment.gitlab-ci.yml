@@ -4,7 +4,7 @@
 # Comments the MR link on every issue named in the MR description after a merge.
 # Needs a masked CI variable GITLAB_API_TOKEN with the api scope.
 merged-issue-comment:
-  stage: .post
+  stage: pr-steward
   image: $PR_STEWARD_IMAGE
   variables:
     PR_STEWARD_IMAGE: alpine:3

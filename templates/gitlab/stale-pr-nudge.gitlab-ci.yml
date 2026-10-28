@@ -5,7 +5,7 @@
 # Runs only from a scheduled pipeline: create one under CI/CD > Schedules.
 # Needs a masked CI variable GITLAB_API_TOKEN with the api scope, to list and comment on merge requests.
 stale-mr-nudge:
-  stage: .post
+  stage: pr-steward
   image: $PR_STEWARD_IMAGE
   variables:
     PR_STEWARD_IMAGE: alpine:3
