@@ -13,7 +13,7 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 
 ## Steps
 
-1. Read the issue and its checklist. Pick the single chunk this PR completes.
+1. Find the issue: from the user's message, the branch name or the commits. None exists: create it first with `new-issue` (labels, checklist), and use its number in the steps below. Never open a PR with no issue to reference; skip only if the user says the change needs none. Read the issue and its checklist. Pick the single chunk this PR completes.
 2. Pick the base. Normal PR: the working branch (project rules, then `workingBranch`; ask the user only if neither says: `development`, `main` or `master`). Chunk of a multi-PR issue: the issue's integration branch (create it from the working branch with `split-issue` if missing). Branch from the base: `feat|fix|chore|ci|refactor/<topic>`. Check project rules for forbidden prefixes.
 3. Run the project gates first (format, lint, tests; see `AGENTS.md`/`Makefile`).
 4. Commit: conventional commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `ci`), imperative subject, reason in body. Focused commits only.
