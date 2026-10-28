@@ -6,7 +6,7 @@
       "name": "pr-steward",
       "source": ".",
       "description": "Issue-driven dev flow: labeled issues with checklists, small PRs, checklist updates, merge, and GitHub/GitLab CI setup",
-      "version": "0.7.0"
+      "version": "0.7.1"
     }
   ]
 }

@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.1] - 2026-10-28
 
 - Guard: resolves the target repo from `cd`/`pushd` per command segment and from `-R`, and runs the PR lookup in that directory instead of the session cwd. When the directory cannot be resolved and no `-R` is given, the merge is not checked and a warning is shown instead of blocking on the wrong repo.
 - `SessionStart` hook lists the skills from the `skills/` directory, so new skills appear in the reminder automatically.
