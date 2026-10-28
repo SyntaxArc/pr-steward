@@ -1,6 +1,10 @@
+import os
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "hooks"))
 import guard  # noqa: E402
@@ -94,6 +98,66 @@ class CreateDecisionTest(unittest.TestCase):
 
     def test_web_never_warns(self) -> None:
         self.assertEqual(guard.decide_create(["--web"], ""), [])
+
+
+class WorkingDirectoryTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.base = os.path.realpath(self._tmp.name)
+        os.mkdir(os.path.join(self.base, "sub"))
+
+    def test_cd_absolute_sets_cwd(self) -> None:
+        inv = guard.match_commands(f"cd {self.base} && gh pr merge 5", "/elsewhere")[0]
+        self.assertEqual((inv.cwd, inv.cwd_unknown), (self.base, False))
+
+    def test_cd_relative_uses_base(self) -> None:
+        inv = guard.match_commands("cd sub && gh pr merge 5", self.base)[0]
+        self.assertEqual(inv.cwd, os.path.join(self.base, "sub"))
+
+    def test_cd_with_rtk_and_semicolon(self) -> None:
+        inv = guard.match_commands("cd sub; rtk gh pr merge 5", self.base)[0]
+        self.assertEqual(inv.cwd, os.path.join(self.base, "sub"))
+
+    def test_no_cd_keeps_base(self) -> None:
+        inv = guard.match_commands("gh pr merge 5", self.base)[0]
+        self.assertEqual((inv.cwd, inv.cwd_unknown), (self.base, False))
+
+    def test_unknown_targets(self) -> None:
+        for cmd in ("cd /does/not/exist && gh pr merge 5", "cd - && gh pr merge 5", "cd $X && gh pr merge 5",
+                    "popd && gh pr merge 5"):
+            inv = guard.match_commands(cmd, self.base)[0]
+            self.assertEqual((inv.cwd, inv.cwd_unknown), (None, True), cmd)
+
+    def test_absolute_cd_recovers_after_unknown(self) -> None:
+        inv = guard.match_commands(f"cd - && cd {self.base} && gh pr merge 5", self.base)[0]
+        self.assertEqual((inv.cwd, inv.cwd_unknown), (self.base, False))
+
+    def test_unknown_cwd_without_repo_flag_warns_and_skips_lookup(self) -> None:
+        with mock.patch.object(guard, "fetch_view") as fetch:
+            blocks, warns = guard.evaluate("cd /does/not/exist && gh pr merge 5", self.base)
+        fetch.assert_not_called()
+        self.assertEqual(blocks, [])
+        self.assertTrue(any("not checked" in w for w in warns))
+
+    def test_unknown_cwd_with_repo_flag_still_checks(self) -> None:
+        view = {"rollup": [{"name": "lint", "conclusion": "FAILURE"}], "merge_state": "", "mergeable": "", "body": ""}
+        with mock.patch.object(guard, "fetch_view", return_value=view) as fetch:
+            blocks, _ = guard.evaluate("cd /does/not/exist && gh pr merge 5 -R o/r", self.base)
+        fetch.assert_called_once()
+        self.assertEqual(blocks, ["checks failed: lint"])
+
+    def test_lookup_runs_in_the_resolved_directory(self) -> None:
+        seen: list[str | None] = []
+
+        def fake_run(cmd, **kwargs):  # noqa: ANN001
+            seen.append(kwargs.get("cwd"))
+            return subprocess.CompletedProcess(cmd, 0, stdout="{}", stderr="")
+
+        with mock.patch.object(guard.subprocess, "run", fake_run):
+            guard.evaluate("cd sub && gh pr merge 5", self.base)
+        self.assertTrue(seen)
+        self.assertTrue(all(c == os.path.join(self.base, "sub") for c in seen))
 
 
 if __name__ == "__main__":
