@@ -48,6 +48,8 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | link branch to issue | `gh issue develop N --name BRANCH` (errors if already linked: ignore) | put `/relate #N` (quick action) or `Related to #N` in the MR description |
 | view issue milestone, project | `gh issue view N --json milestone,projectItems` | `glab issue view N -F json \| jq '{milestone}'` (no project field) |
 | set PR/MR milestone, project | `gh pr edit N --milestone M --add-project P` | `glab mr update N --milestone M` (no project field) |
+| detect merge queue on base branch | `gh api repos/OWNER/REPO/rules/branches/BASE --jq 'map(select(.type=="merge_queue")) \| length'` (nonzero = queue on) | merge trains are a project setting; use `--when-pipeline-succeeds` either way |
+| enqueue in merge queue and wait for MERGED | `gh pr merge N --auto` (no strategy flag), then poll `gh pr view N --json state` until MERGED | `glab mr merge N --when-pipeline-succeeds`, then poll `glab mr view N -F json \| jq .state` until `merged` |
 
 ## Differences
 
