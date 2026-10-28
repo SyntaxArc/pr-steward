@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Land PRs in order: rebase on the base, union-resolve append-only conflicts,
 # run project gates, push, wait for checks, merge, verify MERGED, delete the head branch.
+# With a merge queue on the base branch: enqueue with --auto and poll until MERGED.
+# Env: LAND_QUEUE_TIMEOUT seconds to wait for a queued PR to merge (default 1800).
 # Usage: land.sh PR [PR...]   (run from inside the repo; GitHub only for now)
 set -euo pipefail
 
@@ -111,6 +113,22 @@ wait_for_checks() {
   esac
 }
 
+# Print the number of merge_queue rules on the base branch; 0 when none or the lookup fails.
+# NOTE: not tested against a live merge queue; the lookup uses the repository rules API.
+queue_rules() {
+  local base="$1" count
+  count="$(gh api "repos/{owner}/{repo}/rules/branches/$base" --jq 'map(select(.type=="merge_queue")) | length' 2> /dev/null || true)"
+  case "$count" in
+    '' | *[!0-9]*) count=0 ;;
+  esac
+  printf '%s' "$count"
+}
+
+queue_timeout="${LAND_QUEUE_TIMEOUT:-1800}"
+case "$queue_timeout" in
+  '' | *[!0-9]*) die "LAND_QUEUE_TIMEOUT must be a number of seconds: $queue_timeout" 64 ;;
+esac
+
 for pr in "$@"; do
   echo "== PR $pr =="
   info="$(gh pr view "$pr" --json state,headRefName,baseRefName,isCrossRepository \
@@ -140,20 +158,38 @@ for pr in "$@"; do
   case "$merge_state" in
     DIRTY | BEHIND | BLOCKED | UNKNOWN) die "PR $pr: merge state is $merge_state; not merging" 3 ;;
   esac
-  gh pr merge "$pr" "--$strategy" > /dev/null 2>&1 || echo "PR $pr: gh pr merge reported an error; reading state to check"
-
   final=""
-  for _ in 1 2 3 4 5 6; do
-    final="$(gh pr view "$pr" --json state --jq .state)"
-    [ "$final" = MERGED ] && break
-    sleep 3
-  done
-  [ "$final" = MERGED ] || die "PR $pr: state is $final after merge attempt" 6
+  if [ "$(queue_rules "$base")" -gt 0 ]; then
+    # Merge queue: enqueue without a strategy flag, then wait for MERGED before the next PR.
+    gh pr merge "$pr" --auto > /dev/null 2>&1 || echo "PR $pr: gh pr merge --auto reported an error; reading state to check"
+    echo "PR $pr: queued in the merge queue for $base; waiting for MERGED"
+    waited=0
+    while [ "$waited" -lt "$queue_timeout" ]; do
+      final="$(gh pr view "$pr" --json state --jq .state)"
+      case "$final" in
+        MERGED) break ;;
+        CLOSED) die "PR $pr: closed while queued (removed from the merge queue?)" 6 ;;
+      esac
+      sleep 10
+      waited=$((waited + 10))
+    done
+    [ "$final" = MERGED ] || die "PR $pr: still $final after ${queue_timeout}s in the merge queue; stopping" 6
+    strategy_used=queue
+  else
+    gh pr merge "$pr" "--$strategy" > /dev/null 2>&1 || echo "PR $pr: gh pr merge reported an error; reading state to check"
+    for _ in 1 2 3 4 5 6; do
+      final="$(gh pr view "$pr" --json state --jq .state)"
+      [ "$final" = MERGED ] && break
+      sleep 3
+    done
+    [ "$final" = MERGED ] || die "PR $pr: state is $final after merge attempt" 6
+    strategy_used="$strategy"
+  fi
 
   if git -C "$repo" ls-remote --exit-code --heads origin "$head" > /dev/null 2>&1; then
     git -C "$repo" push --quiet origin --delete "$head" || echo "PR $pr: could not delete remote branch $head"
   fi
   git -C "$repo" worktree remove --force "$wt" > /dev/null 2>&1 || true
   git -C "$repo" branch -D "land-pr$pr" > /dev/null 2>&1 || true
-  echo "PR $pr: MERGED ($strategy), branch $head deleted"
+  echo "PR $pr: MERGED ($strategy_used), branch $head deleted"
 done
