@@ -40,6 +40,9 @@ Self-hosted GitLab: `glab` reads the host from the remote; `GITLAB_HOST` overrid
 | delete remote branch | `git push origin --delete BRANCH` | `git push origin --delete BRANCH` |
 | list remote branches merged into the working branch | `git branch -r --merged origin/BASE` | `git branch -r --merged origin/BASE` |
 | auto-delete head branches after merge | `gh api -X PATCH repos/OWNER/REPO -f delete_branch_on_merge=true` | `glab mr create --remove-source-branch`; project: `glab api -X PUT projects/:id -f remove_source_branch_after_merge=true` |
+| view PR/MR labels, assignees, reviewers, state | `gh pr view N --json labels,assignees,reviewRequests,state,baseRefName` | `glab mr view N -F json \| jq '{labels,assignees,reviewers,state,target_branch}'` |
+| view issue labels, assignees | `gh issue view N --json labels,assignees` | `glab issue view N -F json \| jq '{labels,assignees}'` |
+| check tag / release exists | `git ls-remote --tags origin vX.Y.Z`; `gh release view vX.Y.Z --json tagName,url` | `git ls-remote --tags origin vX.Y.Z`; `glab release view vX.Y.Z` |
 
 ## Differences
 

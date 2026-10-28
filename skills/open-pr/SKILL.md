@@ -25,7 +25,8 @@ Config (optional `.pr-steward.json`): `${CLAUDE_PLUGIN_ROOT}/reference/config.md
 8. Labels: copy from the issue.
 9. Assign every PR/MR (chunk, single and final) to the current user: `--assignee @me` (GitLab: `--assignee <username>` from `glab api user`). Do not ask who to assign.
 10. Reviewer: `defaultReviewer` if set; else ask who should review (GitHub login or GitLab username). Pass `--reviewer <login>` when known; if the user names no one, skip it. Final PR: ask unless `defaultReviewer` is set. Never merge the final PR; the reviewer reviews and merges.
-11. Run `tick-checklist` before merge if checks already pass.
+11. Read back after create or edit: view the PR/MR (see host commands) and compare labels, assignee, reviewer, base and the reference line with the intent. Fix a mismatch when safe (edit command); otherwise report it. The read-back state is the truth, not the command exit code.
+12. Run `tick-checklist` before merge if checks already pass.
 
 ## Hygiene
 
