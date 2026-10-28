@@ -6,7 +6,7 @@
 # Needs a CI variable NOTIFY_KIND (mattermost | slack | telegram) and, for Telegram, NOTIFY_TELEGRAM_CHAT_ID.
 # Also needs a masked CI variable GITLAB_API_TOKEN with the read_api scope, to find the merge request.
 notify-merge:
-  stage: .post
+  stage: pr-steward
   image: $PR_STEWARD_IMAGE
   variables:
     PR_STEWARD_IMAGE: alpine:3

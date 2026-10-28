@@ -11,7 +11,7 @@
 # parsed with grep and jq and never run as shell.
 # resource_group runs the jobs one at a time, so two merges do not overwrite each other's edits.
 tick-issue-checklist:
-  stage: .post
+  stage: pr-steward
   image: $PR_STEWARD_IMAGE
   variables:
     PR_STEWARD_IMAGE: alpine:3

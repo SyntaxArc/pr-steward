@@ -5,7 +5,7 @@
 # Needs a masked CI variable GITLAB_API_TOKEN with the api scope (Reporter role or higher on the project).
 # Adapt the case patterns in LABEL_MAP to this repository's layout; labels must already exist.
 label-merge-request:
-  stage: .pre
+  stage: pr-steward
   image: $PR_STEWARD_IMAGE
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

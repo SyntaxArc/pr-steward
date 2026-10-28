@@ -8,7 +8,7 @@
 # Skips forks, the default branch, main, master, develop, development, staging, production, stable, trunk, release/*
 # and protected branches.
 delete-merged-branch:
-  stage: .post
+  stage: pr-steward
   image: $PR_STEWARD_IMAGE
   variables:
     PR_STEWARD_IMAGE: alpine:3
