@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+- `merge-pr` and `land`: merge-queue aware. They detect a queue on the base branch, enqueue with `--auto` and wait for MERGED instead of merging directly.
+- Hooks: `PostToolUse` reads back state after PR/MR create and merge; `Stop` warns, without blocking, about unpushed commits, unticked linked-issue items and leftover worktrees.
+- Tests: offline smoke tests for `tick.py`, the guard hook and `land.sh` (temp repo, local bare remote, fake `gh`).
+
 ## [0.7.1] - 2026-10-28
 
 - Guard: resolves the target repo from `cd`/`pushd` per command segment and from `-R`, and runs the PR lookup in that directory instead of the session cwd. When the directory cannot be resolved and no `-R` is given, the merge is not checked and a warning is shown instead of blocking on the wrong repo.
