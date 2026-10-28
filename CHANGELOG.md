@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.0] - 2026-10-28
 
 - `open-pr`/`merge-pr`: delete the source branch after merge. GitLab `--remove-source-branch` on create; GitHub checks the repo setting and offers to enable it, else `merge-pr` uses `--delete-branch`. Opt out with `deleteBranchOnMerge: false`.
 - `scripts/tick.py`: safe checklist tick (refuses empty bodies, keeps the item count, reads back); `tick-checklist` and `merge-pr` use it.
