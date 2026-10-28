@@ -10,13 +10,15 @@ on:
 
 jobs:
   delete-branch:
-    # Merged, same-repository pull requests only (forks are skipped), never the default branch, main, master or release/*.
+    # Merged, same-repository pull requests only (forks are skipped), never the default branch, main, master, develop, development, staging, production, stable, trunk, release/* or a
+    # protected branch (checked in the step).
     if: >-
       github.event.pull_request.merged == true
       && github.event.pull_request.head.repo.full_name == github.repository
       && github.event.pull_request.head.ref != github.event.repository.default_branch
       && github.event.pull_request.head.ref != 'main'
       && github.event.pull_request.head.ref != 'master'
+      && !contains(fromJSON('["develop", "development", "staging", "production", "stable", "trunk"]'), github.event.pull_request.head.ref)
       && !startsWith(github.event.pull_request.head.ref, 'release/')
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -29,5 +31,10 @@ jobs:
         REPO: ${{ github.repository }}
         HEAD_REF: ${{ github.event.pull_request.head.ref }}
       run: |
+        # A protected branch is long-lived (an integration or release line): never delete it.
+        if [ "$(gh api "repos/$REPO/branches/$HEAD_REF" --jq .protected 2>/dev/null)" = "true" ]; then
+          echo "Branch $HEAD_REF is protected; keeping it."
+          exit 0
+        fi
         # An already deleted branch (for example by the repository setting) is not an error.
         gh api -X DELETE "repos/$REPO/git/refs/heads/$HEAD_REF" || echo "Branch $HEAD_REF is already gone or protected."
