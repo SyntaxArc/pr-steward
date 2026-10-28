@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.1] - 2026-10-28
+
+- `setup-ci`: GitLab and GitHub `merged-comment` and `tick-checklist` no longer fail when the MR/PR has no matching reference line ([#123](https://github.com/SyntaxArc/pr-steward/pull/123), [#122](https://github.com/SyntaxArc/pr-steward/issues/122)).
+
 ## [0.9.0] - 2026-10-28
 
 - `setup-ci`: GitLab job image configurable via `PR_STEWARD_IMAGE`, default `alpine:3` ([#118](https://github.com/SyntaxArc/pr-steward/pull/118), [#114](https://github.com/SyntaxArc/pr-steward/issues/114)).
