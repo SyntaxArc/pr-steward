@@ -7,6 +7,7 @@ Optional file at the repo root. Skills read it before asking the user.
   "workingBranch": "master",
   "defaultReviewer": "octocat",
   "mergeStrategy": "squash",
+  "deleteBranchOnMerge": true,
   "repos": ["owner/api", "owner/web"]
 }
 ```
@@ -16,6 +17,7 @@ Optional file at the repo root. Skills read it before asking the user.
 | `workingBranch` | branch PRs target (`development`, `main`, `master`, ...) | `open-pr`, `merge-pr`, `release` |
 | `defaultReviewer` | GitHub login or GitLab username | `open-pr` |
 | `mergeStrategy` | `merge`, `squash` or `rebase` | `merge-pr` |
+| `deleteBranchOnMerge` | boolean, default `true`; `false` turns off deleting the source branch after merge | `open-pr`, `merge-pr` |
 | `maxFiles` | integer, default `15`; PR size warning above this many changed files | `open-pr`, `merge-pr` |
 | `maxLines` | integer, default `500`; PR size warning above this many changed lines | `open-pr`, `merge-pr` |
 | `announce` | object `{"kind": "mattermost"\|"slack"\|"telegram", "channel": "..."}`; where `release` offers to post the link | `release` |

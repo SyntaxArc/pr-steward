@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- `open-pr`/`merge-pr`: delete the source branch after merge. GitLab `--remove-source-branch` on create; GitHub checks the repo setting and offers to enable it, else `merge-pr` uses `--delete-branch`. Opt out with `deleteBranchOnMerge: false`.
 - `scripts/tick.py`: safe checklist tick (refuses empty bodies, keeps the item count, reads back); `tick-checklist` and `merge-pr` use it.
 - `land` skill and `scripts/land.sh`: merge several PRs in order with append-only conflict resolution, gates and CI wait.
 - `parallel-prs` skill: one subagent per parallel-safe chunk, with a fixed brief.

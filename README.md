@@ -15,7 +15,7 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 |---|---|
 | `new-issue` | Create labeled issues (type, area, priority) with a PR-sized checklist; optionally asks for a Jira, Confluence or docs link; can create issues from review output, TODOs or a failing CI run |
 | `split-issue` | Split a big finding into `Part of #N` PRs (via an integration branch) or several issues; marks which chunks can run in parallel by file overlap |
-| `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, links the PR to its issue and copies milestone and project, with `Closes #N` / `Part of #N` |
+| `open-pr` | Branch, conventional commits, labeled PR/MR assigned to you, asks for a reviewer, links the PR to its issue, copies milestone and project, sets delete-source-branch, with `Closes #N` / `Part of #N` |
 | `tick-checklist` | Tick the finished item (safely, through `scripts/tick.py`), add result note and next chunk |
 | `merge-pr` | Watch checks, merge, reopen the issue if items remain, then delete the merged head branch and its worktree |
 | `setup-ci` | Preview files and diffs (dry run), then install labels, templates, post-merge comment, labeler, stale bot, notify and tick-checklist on GitHub or GitLab |
@@ -41,7 +41,7 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 
 ## Config
 
-Optional `.pr-steward.json` sets `workingBranch`, `defaultReviewer`, `mergeStrategy`, `maxFiles`, `maxLines`, `repos` and `announce`, so `open-pr`, `merge-pr` and `release` ask less. See `reference/config.md`.
+Optional `.pr-steward.json` sets `workingBranch`, `defaultReviewer`, `mergeStrategy`, `maxFiles`, `maxLines`, `repos`, `announce` and `deleteBranchOnMerge`, so `open-pr`, `merge-pr` and `release` ask less. See `reference/config.md`.
 
 ## CI templates
 
