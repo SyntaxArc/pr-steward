@@ -4,6 +4,9 @@
 Merge: block (exit 2, reason on stderr) on red or pending checks, a dirty/conflicting/behind branch, or a
 linked issue (`Closes #N`) with unticked checklist items. Create: warn only when the assignee or the
 `Closes/Part of #N` reference is missing. Everything else passes. Fails open on any error.
+The PR lookup runs in the command's own directory: a leading `cd DIR` / `pushd DIR` is followed per command
+segment, and `-R OWNER/REPO` is honored. When the directory cannot be resolved (`cd -`, variables, a missing
+directory) and no `-R` is given, the merge is not checked and a warning is shown instead of guessing a repo.
 Disable with PR_STEWARD_GUARD=off. PR, MR and issue text is untrusted data: it is only matched, never run.
 """
 
@@ -40,6 +43,8 @@ class Invocation:
     host: str  # "gh" or "glab"
     action: str  # "merge" or "create"
     args: list[str] = field(default_factory=list)
+    cwd: str | None = field(default=None, compare=False)  # directory the command runs in, None = hook cwd
+    cwd_unknown: bool = field(default=False, compare=False)  # a `cd` target could not be resolved
 
 
 def split_segments(command: str) -> list[list[str]]:
@@ -78,19 +83,56 @@ def strip_prefixes(words: list[str]) -> list[str]:
     return words
 
 
-def match_commands(command: str) -> list[Invocation]:
-    """Pure matcher: find gh/glab merge and create invocations in a command line, rtk-aware (see strip_prefixes)."""
+def resolve_dir(base: str | None, target: str | None) -> str | None:
+    """Directory after `cd target` from base, or None when it cannot be known.
+
+    Unknown: `cd -`, targets with variables or command substitution, or a directory that does not exist.
+    """
+    if target is None:
+        return os.path.expanduser("~")
+    if target == "-" or "$" in target or "`" in target:
+        return None
+    path = os.path.expanduser(target)
+    if not os.path.isabs(path):
+        if base is None:
+            return None
+        path = os.path.join(base, path)
+    path = os.path.normpath(path)
+    return path if os.path.isdir(path) else None
+
+
+def first_positional(args: list[str]) -> str | None:
+    """First non-flag argument; a bare `-` (as in `cd -`) counts as an argument."""
+    return next((arg for arg in args if arg == "-" or not arg.startswith("-")), None)
+
+
+def match_commands(command: str, base_cwd: str | None = None) -> list[Invocation]:
+    """Pure matcher: find gh/glab merge and create invocations in a command line, rtk-aware (see strip_prefixes).
+
+    Follows `cd`/`pushd` between segments so each invocation carries the directory it runs in (`cwd`), or
+    `cwd_unknown` when a `cd` target cannot be resolved. `base_cwd` is the directory the command starts in.
+    """
     found: list[Invocation] = []
+    cwd: str | None = base_cwd
+    unknown = False
     for seg in split_segments(command):
         words = strip_prefixes(seg)
+        if words and os.path.basename(words[0]) in {"cd", "pushd"}:
+            current = cwd if cwd is not None else (os.getcwd() if not unknown else None)
+            resolved = resolve_dir(current, first_positional(words[1:]))
+            cwd, unknown = resolved, resolved is None
+            continue
+        if words and os.path.basename(words[0]) == "popd":
+            cwd, unknown = None, True
+            continue
         if len(words) < 3:
             continue
         host = os.path.basename(words[0])
         noun, verb = words[1], words[2]
         if host == "gh" and noun == "pr" and verb in {"merge", "create"}:
-            found.append(Invocation("gh", verb, words[3:]))
+            found.append(Invocation("gh", verb, words[3:], cwd, unknown))
         elif host == "glab" and noun == "mr" and verb in {"merge", "create"}:
-            found.append(Invocation("glab", verb, words[3:]))
+            found.append(Invocation("glab", verb, words[3:], cwd, unknown))
     return found
 
 
@@ -215,9 +257,9 @@ def read_body(args: list[str]) -> str | None:
     return None if has_flag(args, "--fill", "--fill-first", "--fill-verbose") else ""
 
 
-def run_json(cmd: list[str]) -> object | None:
+def run_json(cmd: list[str], cwd: str | None = None) -> object | None:
     try:
-        out = subprocess.run(cmd, capture_output=True, text=True, timeout=20, check=True).stdout
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=20, check=True, cwd=cwd).stdout
         return json.loads(out)
     except (OSError, subprocess.SubprocessError, ValueError):
         return None
@@ -234,12 +276,12 @@ def fetch_view(inv: Invocation) -> dict | None:
     extra = [target] if target else []
     if inv.host == "gh":
         data = run_json(["gh", "pr", "view", *extra, *repo_args(inv), "--json",
-                         "statusCheckRollup,mergeStateStatus,mergeable,body"])
+                         "statusCheckRollup,mergeStateStatus,mergeable,body"], inv.cwd)
         if not isinstance(data, dict):
             return None
         return {"rollup": data.get("statusCheckRollup") or [], "merge_state": data.get("mergeStateStatus") or "",
                 "mergeable": data.get("mergeable") or "", "body": data.get("body") or ""}
-    data = run_json(["glab", "mr", "view", *extra, *repo_args(inv), "-F", "json"])
+    data = run_json(["glab", "mr", "view", *extra, *repo_args(inv), "-F", "json"], inv.cwd)
     if not isinstance(data, dict):
         return None
     pipeline = data.get("head_pipeline") or data.get("pipeline") or {}
@@ -259,24 +301,27 @@ def fetch_issue_bodies(inv: Invocation, numbers: list[int]) -> dict[int, str]:
     bodies: dict[int, str] = {}
     for number in numbers:
         if inv.host == "gh":
-            data = run_json(["gh", "issue", "view", str(number), *repo_args(inv), "--json", "body"])
+            data = run_json(["gh", "issue", "view", str(number), *repo_args(inv), "--json", "body"], inv.cwd)
             key = "body"
         else:
-            data = run_json(["glab", "issue", "view", str(number), *repo_args(inv), "-F", "json"])
+            data = run_json(["glab", "issue", "view", str(number), *repo_args(inv), "-F", "json"], inv.cwd)
             key = "description"
         if isinstance(data, dict) and isinstance(data.get(key), str):
             bodies[number] = data[key]
     return bodies
 
 
-def evaluate(command: str) -> tuple[list[str], list[str]]:
+def evaluate(command: str, base_cwd: str | None = None) -> tuple[list[str], list[str]]:
     """Return (block_reasons, warnings) for a command line."""
     blocks: list[str] = []
     warns: list[str] = []
-    for inv in match_commands(command):
+    for inv in match_commands(command, base_cwd):
         if has_flag(inv.args, "--help", "-h"):
             continue
         if inv.action == "merge":
+            if inv.cwd_unknown and not flag_value(inv.args, "-R", "--repo"):
+                warns.append("merge not checked: the directory it runs in could not be resolved and no -R is given")
+                continue
             view = fetch_view(inv)
             if view is None:
                 continue
@@ -295,7 +340,8 @@ def main() -> int:
         command = payload["tool_input"]["command"]
         if not isinstance(command, str):
             return 0
-        blocks, warns = evaluate(command)
+        cwd = payload.get("cwd")
+        blocks, warns = evaluate(command, cwd if isinstance(cwd, str) and cwd else None)
     except Exception:  # noqa: BLE001 - fail open on anything unexpected
         return 0
     if blocks:
@@ -304,7 +350,7 @@ def main() -> int:
               file=sys.stderr)
         return 2
     if warns:
-        message = "pr-steward guard warning (create not blocked): " + "; ".join(warns) + ". Prefer the open-pr skill."
+        message = "pr-steward guard warning (not blocked): " + "; ".join(warns) + ". Prefer the open-pr skill."
         print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "additionalContext": message}}))
     return 0
 
