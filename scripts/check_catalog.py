@@ -67,6 +67,11 @@ def check_hooks(path: Path, root: Path) -> list[str]:
     return errors
 
 
+def check_untrusted_text_link(text: str) -> list[str]:
+    """Check a skill body links reference/untrusted-text.md."""
+    return [] if "untrusted-text.md" in text else ["does not link reference/untrusted-text.md"]
+
+
 def check() -> list[str]:
     errors: list[str] = []
     plugin = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
@@ -85,8 +90,11 @@ def check() -> list[str]:
             errors.append(f"{skill}: description missing")
         if "host-commands.md" not in text:
             errors.append(f"{skill}: does not link reference/host-commands.md")
+        errors.extend(f"{skill}: {problem}" for problem in check_untrusted_text_link(text))
     if not (ROOT / "reference/host-commands.md").exists():
         errors.append("reference/host-commands.md missing")
+    if not (ROOT / "reference/untrusted-text.md").exists():
+        errors.append("reference/untrusted-text.md missing")
     changelog = ROOT / "CHANGELOG.md"
     if changelog.exists():
         errors.extend(check_changelog(changelog.read_text(), plugin["version"]))
