@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.0] - 2026-10-28
+
+- Skills: issue and PR/MR descriptions are short and caveman-terse, key changes only. New `reference/terse-text.md`, linked from `open-pr`, `new-issue`, `backport`, `hotfix`, `release` ([#129](https://github.com/SyntaxArc/pr-steward/pull/129), [#128](https://github.com/SyntaxArc/pr-steward/issues/128)).
+
 ## [0.9.2] - 2026-10-28
 
 - `setup-ci`: GitLab `delete-merged-branch` no longer fails when the source branch is already deleted on merge ([#126](https://github.com/SyntaxArc/pr-steward/pull/126), [#125](https://github.com/SyntaxArc/pr-steward/issues/125)).
