@@ -1,3 +1,6 @@
+# Job image: set the CI variable PR_STEWARD_IMAGE (project or group) to use another image, for example a mirror when
+# Docker Hub is blocked. A non-Alpine image must already provide sh, curl and jq
+# (the stale nudge also needs GNU date, the checklist job awk, cmp and sed); apk packages are installed only on Alpine.
 # Ticks checklist items on the issues the merged MR refers to.
 #   "Part of #N (item K)"  ticks item K (the Kth "- [ ]" line, counted from 1) in the issue description.
 #   "Closes #N"            ticks every remaining item ("Fixes" and "Resolves" work the same).
@@ -9,14 +12,16 @@
 # resource_group runs the jobs one at a time, so two merges do not overwrite each other's edits.
 tick-issue-checklist:
   stage: .post
-  image: alpine:3
+  image: $PR_STEWARD_IMAGE
+  variables:
+    PR_STEWARD_IMAGE: alpine:3
   resource_group: tick-checklist
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     - if: '$CI_COMMIT_BRANCH'
   before_script:
-    - apk add --no-cache curl jq
+    - if command -v apk >/dev/null; then apk add --no-cache curl jq; fi
   script:
     - |
       api="$CI_API_V4_URL/projects/$CI_PROJECT_ID"

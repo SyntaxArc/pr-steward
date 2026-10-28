@@ -1,13 +1,18 @@
+# Job image: set the CI variable PR_STEWARD_IMAGE (project or group) to use another image, for example a mirror when
+# Docker Hub is blocked. A non-Alpine image must already provide sh, curl and jq
+# (the stale nudge also needs GNU date, the checklist job awk, cmp and sed); apk packages are installed only on Alpine.
 # Comments once on open, non-draft merge requests with no activity for STALE_PR_DAYS days (default 3). Never closes anything.
 # Runs only from a scheduled pipeline: create one under CI/CD > Schedules.
 # Needs a masked CI variable GITLAB_API_TOKEN with the api scope, to list and comment on merge requests.
 stale-mr-nudge:
   stage: .post
-  image: alpine:3
+  image: $PR_STEWARD_IMAGE
+  variables:
+    PR_STEWARD_IMAGE: alpine:3
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
   before_script:
-    - apk add --no-cache curl jq coreutils
+    - if command -v apk >/dev/null; then apk add --no-cache curl jq coreutils; fi
   script:
     - |
       days="${STALE_PR_DAYS:-3}"
