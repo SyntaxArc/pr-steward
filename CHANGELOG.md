@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.0] - 2026-10-28
+
+- `setup-ci`: GitLab job image configurable via `PR_STEWARD_IMAGE`, default `alpine:3` ([#118](https://github.com/SyntaxArc/pr-steward/pull/118), [#114](https://github.com/SyntaxArc/pr-steward/issues/114)).
+- `open-pr`: create the issue with `new-issue` first when none exists ([#115](https://github.com/SyntaxArc/pr-steward/pull/115), [#111](https://github.com/SyntaxArc/pr-steward/issues/111)).
+- `setup-ci`: GitLab post-merge jobs run on any branch, not only the default ([#116](https://github.com/SyntaxArc/pr-steward/pull/116), [#112](https://github.com/SyntaxArc/pr-steward/issues/112)).
+- `setup-ci`: `delete-merged-branch` keeps long-lived and protected branches ([#117](https://github.com/SyntaxArc/pr-steward/pull/117), [#113](https://github.com/SyntaxArc/pr-steward/issues/113)).
+- `setup-ci`: GitLab jobs use a normal `pr-steward` stage, since `.pre`/`.post`-only pipelines never run ([#120](https://github.com/SyntaxArc/pr-steward/pull/120), [#119](https://github.com/SyntaxArc/pr-steward/issues/119)).
+
 ## [0.8.0] - 2026-10-28
 
 - `merge-pr` and `land`: merge-queue aware. They detect a queue on the base branch, enqueue with `--auto` and wait for MERGED instead of merging directly.
