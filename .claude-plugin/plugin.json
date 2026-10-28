@@ -1,6 +1,6 @@
 {
   "name": "pr-steward",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Issue-driven dev flow: labeled issues with checklists, small PRs, checklist updates, merge, and GitHub/GitLab CI setup",
   "author": { "name": "SyntaxArc" },
   "repository": "https://github.com/SyntaxArc/pr-steward",
