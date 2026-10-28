@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.8.0] - 2026-10-28
 
 - `merge-pr` and `land`: merge-queue aware. They detect a queue on the base branch, enqueue with `--auto` and wait for MERGED instead of merging directly.
 - Hooks: `PostToolUse` reads back state after PR/MR create and merge; `Stop` warns, without blocking, about unpushed commits, unticked linked-issue items and leftover worktrees.
