@@ -33,5 +33,6 @@ Installs the files in `${CLAUDE_PLUGIN_ROOT}/templates/` into the current repo.
 6. Adapt `labeler.yml` globs (GitLab: `LABEL_MAP`) to the repo layout; do not ship placeholder globs.
 7. GitLab needs a CI variable `GITLAB_API_TOKEN` (api scope) for the merged-comment, labeler, tick-checklist and delete-merged-branch jobs. Tell the user; never write a token to a file.
 8. For `notify`, ask the chat kind (`mattermost`, `slack` or `telegram`). Tell the user to create the secret `NOTIFY_WEBHOOK_URL` (GitLab: masked CI variable) and set `NOTIFY_KIND`. Telegram also needs `NOTIFY_TELEGRAM_CHAT_ID`, and the secret is `https://api.telegram.org/bot<TOKEN>/sendMessage`. GitLab also needs `GITLAB_API_TOKEN`. Never ask for or write the webhook URL or a token.
+9a. GitLab jobs run in `alpine:3` by default. If the runner cannot pull it, tell the user to set the CI variable `PR_STEWARD_IMAGE` to another image (a mirror, or one with `curl` and `jq`).
 9. For `stale-pr-nudge` on GitLab, also tell the user to create a pipeline schedule and a masked `GITLAB_API_TOKEN` (api scope). Optional variable `STALE_PR_DAYS` sets the idle threshold on both hosts.
 10. Run the label script only after the user confirms; it creates labels on the remote.

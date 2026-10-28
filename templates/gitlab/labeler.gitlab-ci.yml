@@ -1,12 +1,16 @@
+# Job image: set the CI variable PR_STEWARD_IMAGE (project or group) to use another image, for example a mirror when
+# Docker Hub is blocked. A non-Alpine image must already provide sh, curl and jq
+# (the stale nudge also needs GNU date, the checklist job awk, cmp and sed); apk packages are installed only on Alpine.
 # Adds area labels to a merge request from its changed paths.
 # Needs a masked CI variable GITLAB_API_TOKEN with the api scope (Reporter role or higher on the project).
 # Adapt the case patterns in LABEL_MAP to this repository's layout; labels must already exist.
 label-merge-request:
   stage: .pre
-  image: alpine:3
+  image: $PR_STEWARD_IMAGE
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   variables:
+    PR_STEWARD_IMAGE: alpine:3
     # One "glob=label" per line; the first matching label per path wins, each label is added once.
     LABEL_MAP: |
       .gitlab/*=area::ci
@@ -14,7 +18,7 @@ label-merge-request:
       docs/*=documentation
       *.md=documentation
   before_script:
-    - apk add --no-cache curl jq
+    - if command -v apk >/dev/null; then apk add --no-cache curl jq; fi
   script:
     - |
       api="$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID"
