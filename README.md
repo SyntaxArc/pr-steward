@@ -1,6 +1,6 @@
 # pr-steward
 
-Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases](https://github.com/SyntaxArc/pr-steward/releases)) for an issue-driven dev flow: **issue with checklist -> small PRs -> tick checklist -> merge -> close**.
+Codex and Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases](https://github.com/SyntaxArc/pr-steward/releases)) for an issue-driven dev flow: **issue with checklist -> small PRs -> tick checklist -> merge -> close**.
 
 ## Install
 
@@ -8,6 +8,16 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 /plugin marketplace add SyntaxArc/pr-steward
 /plugin install pr-steward@pr-steward
 ```
+
+### Codex — GitHub marketplace
+
+```bash
+codex plugin marketplace add SyntaxArc/pr-steward
+codex plugin add pr-steward@pr-steward
+```
+
+Restart Codex or start a new session after installation. Invoke a skill as `$skill-name`, for example `$open-pr` or
+`$status`. Codex asks you to review and trust the bundled hooks before running them.
 
 ## Skills
 
@@ -37,7 +47,7 @@ Claude Code plugin ([source](https://github.com/SyntaxArc/pr-steward), [releases
 
 ## Hooks
 
-`hooks/hooks.json` ships four hooks. `SessionStart` reminds Claude to use the pr-steward skills instead of raw `gh`/`glab` create and merge. `PreToolUse` on Bash guards `gh pr merge`, `glab mr merge` (blocks on red checks, conflicts or unticked linked-issue items) and warns on `gh pr create`, `glab mr create` without an assignee or `Closes`/`Part of` line. It also matches commands run through `rtk` or `rtk proxy`, fails open when `gh`/`glab` or the network is unavailable, and is disabled with `PR_STEWARD_GUARD=off`.
+`hooks/hooks.json` ships four Claude Code hooks; `.codex-plugin/plugin.json` declares Codex equivalents. `SessionStart` reminds the agent to use the pr-steward skills instead of raw `gh`/`glab` create and merge. `PreToolUse` on Bash guards `gh pr merge`, `glab mr merge` (blocks on red checks, conflicts or unticked linked-issue items) and warns on `gh pr create`, `glab mr create` without an assignee or `Closes`/`Part of` line. It also matches commands run through `rtk` or `rtk proxy`, fails open when `gh`/`glab` or the network is unavailable, and is disabled with `PR_STEWARD_GUARD=off`.
 
 `PostToolUse` on Bash reads the PR/MR back after `gh pr create`, `gh pr merge`, `glab mr create` and `glab mr merge` and adds one line of context (state, labels, assignee, reviewers), flagging a missing assignee or labels. `Stop` is a non-blocking end-of-turn warning about unpushed commits on a feature branch, an open PR whose linked issue has unticked items, and leftover scratch worktrees; it does nothing when the stop hook is already active. Both fail open and respect `PR_STEWARD_GUARD=off`.
 
