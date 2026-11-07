@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.11.0] - 2026-11-07
+
+- Added Codex plugin support ([PR #133](https://github.com/SyntaxArc/pr-steward/pull/133), [issue #132](https://github.com/SyntaxArc/pr-steward/issues/132)).
+- Changed Dependabot fetch-metadata action from 2 to 3 ([PR #131](https://github.com/SyntaxArc/pr-steward/pull/131)).
+
 ## [0.10.0] - 2026-10-28
 
 - Skills: issue and PR/MR descriptions are short and caveman-terse, key changes only. New `reference/terse-text.md`, linked from `open-pr`, `new-issue`, `backport`, `hotfix`, `release` ([#129](https://github.com/SyntaxArc/pr-steward/pull/129), [#128](https://github.com/SyntaxArc/pr-steward/issues/128)).
