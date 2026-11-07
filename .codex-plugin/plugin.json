@@ -1,0 +1,70 @@
+{
+  "name": "pr-steward",
+  "version": "0.10.0",
+  "description": "Codex plugin for issue-driven GitHub and GitLab workflows",
+  "author": {
+    "name": "SyntaxArc"
+  },
+  "repository": "https://github.com/SyntaxArc/pr-steward",
+  "license": "MIT",
+  "keywords": [
+    "github",
+    "gitlab",
+    "issues",
+    "pull-requests",
+    "codex"
+  ],
+  "skills": "./skills",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${PLUGIN_ROOT}/hooks/session-start.sh\"",
+            "statusMessage": "Loading pr-steward guidance"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/hooks/guard.py\"",
+            "timeout": 30,
+            "statusMessage": "Checking GitHub and GitLab command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/hooks/post_tool.py\"",
+            "timeout": 20,
+            "statusMessage": "Reading back pull request state"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${PLUGIN_ROOT}/hooks/stop.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking for unfinished PR work"
+          }
+        ]
+      }
+    ]
+  }
+}
